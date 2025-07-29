@@ -1,0 +1,140 @@
+name: Build Service Image
+run-name: Build '${{ inputs.SERVICE }}' image for '${{ inputs.INSTANCE_NAME }}' on '${{ inputs.STRAIN_REPOSITORY_BRANCH }}' branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      INSTANCE_NAME:
+        description: "Instance to build"
+        type: string
+      SERVICE:
+        description: "Service to build"
+        default: "openedx"
+        type: choice
+        options:
+          - openedx
+          - mfe
+      STRAIN_REPOSITORY_BRANCH:
+        description: "Branch to clone the strain from"
+        default: "main"
+        type: string
+      BUILDKIT_MAX_PARALLELISM:
+        description: "Number of layers to build at the same time."
+        default: "3"
+        type: string
+      PICASSO_VERSION:
+        description: "Picasso version"
+        default: "main"
+        type: string
+
+jobs:
+  build:
+    permissions:
+      contents: write
+    name: Build with Picasso
+    uses: eduNEXT/picasso/.github/workflows/build.yml@main
+    with:
+      BUILDKIT_MAX_PARALLELISM: ${{ fromJSON(inputs.BUILDKIT_MAX_PARALLELISM) }}
+      STRAIN_REPOSITORY: ${{ github.repository }}
+      STRAIN_REPOSITORY_BRANCH: ${{ inputs.STRAIN_REPOSITORY_BRANCH }}
+      STRAIN_PATH: "instances/${{ inputs.INSTANCE_NAME }}"
+      SERVICE: ${{ inputs.SERVICE }}
+      USE_DYNAMIC_IMAGE_TAG: true
+      UPDATE_IMAGE_TAG_IN_REPO: true
+      ADD_RANDOM_SUFFIX_TO_IMAGE_TAG: true
+      RANDOM_SUFFIX_LENGTH: "8"
+      TIMESTAMP_FORMAT: "%Y%m%d"
+      PICASSO_VERSION: ${{ inputs.PICASSO_VERSION }}
+      PYTHON_VERSION: 3.12
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+  upload-tutor-env:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    name: Upload Tutor Environment
+    needs: build
+    env:
+      TUTOR_ROOT: ${{ github.workspace }}/strains/instances/${{ inputs.INSTANCE_NAME }}
+      TUTOR_PLUGINS_ROOT: ${{ github.workspace }}/strains/instances/${{ inputs.INSTANCE_NAME }}/plugins
+
+    steps:
+      - name: Checkout Picasso repository for utility scripts
+        uses: actions/checkout@v4
+        with:
+          repository: edunext/picasso
+          ref: ${{ inputs.PICASSO_VERSION }}
+          path: picasso
+
+      - name: Checkout strains repository for build configurations
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.STRAIN_REPOSITORY }}
+          ref: ${{ inputs.STRAIN_REPOSITORY_BRANCH }}
+          ssh-key: ${{ inputs.STRAIN_REPOSITORY != github.repository && secrets.SSH_PRIVATE_KEY || '' }}
+          path: strains
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+
+      - name: Install necessary requirements for workflow scripts
+        working-directory: ${{ github.workspace }}
+        run: |
+          pip install -r picasso/requirements/base.txt
+
+      - name: Get Tutor Configurations from config.yml and set them as an environment variable
+        working-directory: ${{ github.workspace }}
+        env:
+          REQUIRED_KEYS: TUTOR_VERSION
+          OPTIONAL_KEYS: DOCKER_REGISTRY
+          CONFIG_FILE: strains/instances/${{ inputs.INSTANCE_NAME }}/config.yml
+          SCRIPT_PATH: picasso/.github/workflows/scripts/get_tutor_config.py
+        run: |
+          ENV_VARS=$(python $SCRIPT_PATH --config-file $CONFIG_FILE --required-keys $REQUIRED_KEYS --optional-keys $OPTIONAL_KEYS)
+          echo "$ENV_VARS" >> $GITHUB_ENV
+
+      - name: Install Tutor and its dependencies from the version specified in the config.yml
+        run: |
+          pip install git+https://github.com/overhangio/tutor.git@$TUTOR_VERSION
+          tutor config save
+
+      - name: Enable and install picasso plugin in Tutor environment
+        run: |
+          pip install git+https://github.com/eduNEXT/tutor-contrib-picasso@v0.2.0
+          tutor plugins enable picasso
+
+      - name: Setup SSH agent for private repositories cloning
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add GitHub to known hosts
+        run: |
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      - name: Execute extra commands
+        run: |
+          tutor picasso run-extra-commands
+
+      - name: Update Tutor configuration in remote repository
+        working-directory: ${{ github.workspace }}/strains
+        env:
+          STRAIN_PATH: strains/instances/${{ inputs.INSTANCE_NAME }}
+          CONFIG_FILE: instances/${{ inputs.INSTANCE_NAME }}/config.yml
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git restore $CONFIG_FILE
+          git add $STRAIN_PATH/env
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update tutor config for ${{ inputs.INSTANCE_NAME }} image"
+            git push
+          fi
