@@ -131,6 +131,7 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git restore $CONFIG_FILE
+          tree `pwd`
           git add $STRAIN_PATH/env
           if git diff --cached --quiet; then
             echo "No changes to commit"
