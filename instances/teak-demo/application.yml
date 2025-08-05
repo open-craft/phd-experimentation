@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: teak-demo.kubernetes.default.svc
+  namespace: argocd
+spec:
+  destination:
+    name: teak-demo
+    namespace: kubernetes.default.svc
+  project: opencraft
+  source:
+    path: instances/teak-demo/env
+    repoURL: git@github.com:open-craft/phd-experimentation.git
+    targetRevision: main
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+    - PruneLast=true
