@@ -16,11 +16,10 @@ OPENEDX_EXTRA_PIP_REQUIREMENTS:
 PICASSO_EXTRA_COMMANDS:
 - pip install tutor-contrib-drydock
 - tutor plugins index add https://raw.githubusercontent.com/eduNEXT/tutor-plugin-indexes/teak/
-- tutor plugins install mfe mfe-extensions sentry aspects
-- tutor plugins enable drydock mfe mfe-extensions sentry aspects
+- tutor plugins install forum mfe mfe-extensions sentry
+- tutor plugins enable drydock forum mfe mfe-extensions sentry
 - tutor picasso enable-themes
 - tutor picasso enable-private-packages
-- tutor plugins install forum && tutor plugins enable forum
 - tutor config save
 PICASSO_THEMES:
 - name: ednx-saas-themes
@@ -34,3 +33,4 @@ PICASSO_THEME_DIRS:
 - /openedx/themes/ednx-saas-themes/edx-platform/bragi-children
 TUTOR_APP_NAME: teak-demo
 TUTOR_VERSION: v20.0.0
+DRYDOCK_INIT_JOBS: true
