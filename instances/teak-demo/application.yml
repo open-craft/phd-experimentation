@@ -10,7 +10,7 @@ spec:
   project: opencraft
   source:
     path: instances/teak-demo/env
-    repoURL: git@github.com:open-craft/phd-experimentation.git
+    repoURL: https://github.com/open-craft/phd-experimentation.git
     targetRevision: main
   syncPolicy:
     syncOptions:
