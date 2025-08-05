@@ -1,0 +1,951 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: caddy
+  labels:
+    app.kubernetes.io/name: caddy
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: caddy
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: caddy
+    spec:
+      # This Deployment uses a persistent volume claim. This requires
+      # that in order to enable rolling updates (i.e. use a deployment
+      # strategy other than Replace), we schedule the new Pod to the
+      # same node as the original Pod.
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                    - caddy
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: caddy
+          image: docker.io/caddy:2.7.4
+          env:
+          - name: default_site_port
+            value: ":80"
+          volumeMounts:
+            - mountPath: /etc/caddy/
+              name: config
+            - mountPath: /data/
+              name: data
+          ports:
+            - containerPort: 80
+            - containerPort: 443
+      volumes:
+        - name: config
+          configMap:
+            name: caddy-config
+        - name: data
+          persistentVolumeClaim:
+            claimName: caddy
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cms
+  labels:
+    app.kubernetes.io/name: cms
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cms
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: cms
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+        - name: cms
+          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250805-pfxsgwaj
+          env:
+          - name: SERVICE_VARIANT
+            value: cms
+          - name: DJANGO_SETTINGS_MODULE
+            value: cms.envs.tutor.production
+          - name: UWSGI_WORKERS
+            value: "2"
+          ports:
+            - containerPort: 8000
+          volumeMounts:
+            - mountPath: /openedx/edx-platform/lms/envs/tutor/
+              name: settings-lms
+            - mountPath: /openedx/edx-platform/cms/envs/tutor/
+              name: settings-cms
+            - mountPath: /openedx/config
+              name: config
+            - mountPath: /openedx/uwsgi.ini
+              name: uwsgi-config
+              subPath: uwsgi.ini
+          resources:
+            requests:
+              memory: 2Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+      volumes:
+        - name: settings-lms
+          configMap:
+            name: openedx-settings-lms
+        - name: settings-cms
+          configMap:
+            name: openedx-settings-cms
+        - name: config
+          configMap:
+            name: openedx-config
+        - name: uwsgi-config
+          configMap:
+            name: openedx-uwsgi-config
+            items:
+              - key: uwsgi.ini
+                path: uwsgi.ini
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cms-worker
+  labels:
+    app.kubernetes.io/name: cms-worker
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cms-worker
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: cms-worker
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+        - name: cms-worker
+          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250805-pfxsgwaj
+          args:
+          
+          - "celery"
+          - "--app=cms.celery"
+          - "worker"
+          - "--loglevel=info"
+          - "--hostname=edx.cms.core.default.%h"
+          - "--queues=edx.cms.core.default,edx.cms.core.high,edx.cms.core.low"
+          - "--max-tasks-per-child=100"
+          - "--prefetch-multiplier=1"
+          - "--without-gossip"
+          - "--without-mingle"
+          env:
+          - name: SERVICE_VARIANT
+            value: cms
+          - name: DJANGO_SETTINGS_MODULE
+            value: cms.envs.tutor.production
+          volumeMounts:
+            - mountPath: /openedx/edx-platform/lms/envs/tutor/
+              name: settings-lms
+            - mountPath: /openedx/edx-platform/cms/envs/tutor/
+              name: settings-cms
+            - mountPath: /openedx/config
+              name: config
+          securityContext:
+            allowPrivilegeEscalation: false
+      volumes:
+        - name: settings-lms
+          configMap:
+            name: openedx-settings-lms
+        - name: settings-cms
+          configMap:
+            name: openedx-settings-cms
+        - name: config
+          configMap:
+            name: openedx-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lms
+  labels:
+    app.kubernetes.io/name: lms
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: lms
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: lms
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+        - name: lms
+          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250805-pfxsgwaj
+          env:
+          - name: SERVICE_VARIANT
+            value: lms
+          - name: DJANGO_SETTINGS_MODULE
+            value: lms.envs.tutor.production
+          - name: UWSGI_WORKERS
+            value: "2"
+          ports:
+            - containerPort: 8000
+          volumeMounts:
+            - mountPath: /openedx/edx-platform/lms/envs/tutor/
+              name: settings-lms
+            - mountPath: /openedx/edx-platform/cms/envs/tutor/
+              name: settings-cms
+            - mountPath: /openedx/config
+              name: config
+            - mountPath: /openedx/uwsgi.ini
+              name: uwsgi-config
+              subPath: uwsgi.ini
+          resources:
+            requests:
+              memory: 2Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+      volumes:
+        - name: settings-lms
+          configMap:
+            name: openedx-settings-lms
+        - name: settings-cms
+          configMap:
+            name: openedx-settings-cms
+        - name: config
+          configMap:
+            name: openedx-config
+        - name: uwsgi-config
+          configMap:
+            name: openedx-uwsgi-config
+            items:
+            - key: uwsgi.ini
+              path: uwsgi.ini
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lms-worker
+  labels:
+    app.kubernetes.io/name: lms-worker
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: lms-worker
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: lms-worker
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+        - name: lms-worker
+          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250805-pfxsgwaj
+          args: 
+          - "celery"
+          - "--app=lms.celery"
+          - "worker"
+          - "--loglevel=info"
+          - "--hostname=edx.lms.core.default.%h"
+          - "--queues=edx.lms.core.default,edx.lms.core.high,edx.lms.core.high_mem"
+          - "--max-tasks-per-child=100"
+          - "--prefetch-multiplier=1"
+          - "--without-gossip"
+          - "--without-mingle"
+          env:
+          - name: SERVICE_VARIANT
+            value: lms
+          - name: DJANGO_SETTINGS_MODULE
+            value: lms.envs.tutor.production
+          volumeMounts:
+            - mountPath: /openedx/edx-platform/lms/envs/tutor/
+              name: settings-lms
+            - mountPath: /openedx/edx-platform/cms/envs/tutor/
+              name: settings-cms
+            - mountPath: /openedx/config
+              name: config
+          securityContext:
+            allowPrivilegeEscalation: false
+      volumes:
+        - name: settings-lms
+          configMap:
+            name: openedx-settings-lms
+        - name: settings-cms
+          configMap:
+            name: openedx-settings-cms
+        - name: config
+          configMap:
+            name: openedx-config
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: meilisearch
+  labels:
+    app.kubernetes.io/name: meilisearch
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: meilisearch
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: meilisearch
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+      containers:
+        - name: meilisearch
+          image: docker.io/getmeili/meilisearch:v1.8.4
+          env:
+            - name: MEILI_MASTER_KEY
+              value: "OWGGkvUclXbWTQMqbWpMQf9j"
+          ports:
+            - containerPort: 7700
+          securityContext:
+            allowPrivilegeEscalation: false
+          volumeMounts:
+            - mountPath: /meili_data
+              name: data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: meilisearch
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+  labels:
+    app.kubernetes.io/name: mongodb
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mongodb
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mongodb
+    spec:
+      securityContext:
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        fsGroupChangePolicy: "OnRootMismatch"
+      containers:
+        - name: mongodb
+          image: docker.io/mongo:7.0.7
+          args: ["mongod", "--storageEngine", "wiredTiger"]
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - mountPath: /data/db
+              name: data
+          securityContext:
+            allowPrivilegeEscalation: false
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: mongodb
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  labels:
+    app.kubernetes.io/name: mysql
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mysql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mysql
+    spec:
+      securityContext:
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        fsGroupChangePolicy: "OnRootMismatch"
+      containers:
+        - name: mysql
+          image: docker.io/mysql:8.4.0
+          args:
+            - "mysqld"
+            - "--character-set-server=utf8mb4"
+            - "--collation-server=utf8mb4_unicode_ci"
+            - "--binlog-expire-logs-seconds=259200"
+            - "--mysql-native-password=ON"
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "usMgJmj1"
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: data
+          securityContext:
+            allowPrivilegeEscalation: false
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: mysql
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smtp
+  labels:
+    app.kubernetes.io/name: smtp
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: smtp
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: smtp
+    spec:
+      securityContext:
+        runAsUser: 100
+        runAsGroup: 101
+      containers:
+        - name: smtp
+          image: docker.io/devture/exim-relay:4.96-r1-0
+          ports:
+            - containerPort: 8025
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  labels:
+    app.kubernetes.io/name: redis
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: redis
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: redis
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+      containers:
+        - name: redis
+          image: docker.io/redis:7.2.4
+          args: ["redis-server", "/openedx/redis/config/redis.conf"]
+          workingDir: /openedx/redis/data
+          ports:
+            - containerPort: 6379
+          volumeMounts:
+            - mountPath: /openedx/redis/config/
+              name: config
+            - mountPath: /openedx/redis/data
+              name: data
+          securityContext:
+            allowPrivilegeEscalation: false
+      volumes:
+        - name: config
+          configMap:
+            name: redis-config
+        - name: data
+          persistentVolumeClaim:
+            claimName: redis
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clickhouse
+  labels:
+    app.kubernetes.io/name: clickhouse
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: clickhouse
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: clickhouse
+    spec:
+      containers:
+        - env:
+            - name: CLICKHOUSE_DB
+              value: "xapi"
+            - name: CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT
+              value: "1"
+            - name: CLICKHOUSE_PASSWORD
+              value: "WCCxAm9AYpkR2j2NjNDJK6c0"
+            - name: CLICKHOUSE_USER
+              value: "ch_admin"
+          image: clickhouse/clickhouse-server:25.3
+          name: clickhouse
+          ports:
+            - containerPort: 8123
+            - containerPort: 9006
+            - containerPort: 9440
+          volumeMounts:
+            - mountPath: /var/lib/clickhouse/
+              name: data
+            - mountPath: /etc/clickhouse-server/config.d/server_config.xml
+              name: server-settings
+              subPath: server_config.xml
+            - mountPath: /etc/clickhouse-server/users.d/user_config.xml
+              name: user-settings
+              subPath: user_config.xml
+      restartPolicy: Always
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: clickhouse
+        - name: user-settings
+          configMap:
+            name: clickhouse-user-settings
+        - name: server-settings
+          configMap:
+            name: clickhouse-server-settings
+
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ralph
+  labels:
+    app.kubernetes.io/name: ralph
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ralph
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ralph
+    spec:
+      containers:
+        - args:
+            - "uvicorn"
+            - "ralph.api:app"
+            - "--proxy-headers"
+            - "--log-config"
+            - "/etc/ralph/logging.yaml"
+            - "--port"
+            - "8100"
+            - "--host"
+            - "0.0.0.0"
+          env:
+            - name: RALPH_APP_DIR
+              value: "/app/.ralph"
+            - name: RALPH_BACKENDS__LRS__CLICKHOUSE__EVENT_TABLE_NAME
+              value: "xapi_events_all"
+            - name: RALPH_BACKENDS__LRS__CLICKHOUSE__HOST
+              value: "clickhouse"
+            - name: RALPH_BACKENDS__LRS__CLICKHOUSE__PASSWORD
+              value: "WCCxAm9AYpkR2j2NjNDJK6c0"
+            - name: RALPH_BACKENDS__LRS__CLICKHOUSE__PORT
+              value: "8123"
+            - name: RALPH_BACKENDS__LRS__CLICKHOUSE__TEST_HOST
+              value: "clickhouse"
+            - name: RALPH_BACKENDS__LRS__CLICKHOUSE__USERNAME
+              value: "ch_admin"
+            - name: RALPH_BACKENDS__LRS__CLICKHOUSE__DATABASE
+              value: "xapi"
+            - name: RALPH_RUNSERVER_BACKEND
+              value: "clickhouse"
+            - name: RALPH_RUNSERVER_HOST
+              value: "0.0.0.0"
+            - name: RALPH_RUNSERVER_MAX_SEARCH_HITS_COUNT
+              value: "100"
+            - name: RALPH_RUNSERVER_POINT_IN_TIME_KEEP_ALIVE
+              value: "1m"
+            - name: RALPH_RUNSERVER_PORT
+              value: "8100"
+            
+          image: fundocker/ralph:4.1.0
+          name: ralph
+          ports:
+            - containerPort: 8100
+          resources: {}
+          volumeMounts:
+            - mountPath: /app/.ralph
+              name: auth
+            - mountPath: /etc/ralph
+              name: ralph-logging
+      restartPolicy: Always
+      volumes:
+        - name: auth
+          configMap:
+            name: ralph-settings
+        - name: ralph-logging
+          configMap:
+            name: ralph-logging
+
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: superset
+  labels:
+    app.kubernetes.io/name: superset
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: superset
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: superset
+    spec:
+      containers:
+        - args:
+            - bash
+            - /app/docker/docker-bootstrap.sh
+            - app-gunicorn
+          name: superset
+          ports:
+            - containerPort: 8088
+          image: edunext/aspects-superset:2.3.1
+          env:
+            - name: DATABASE_DIALECT
+              value: "mysql"
+            - name: DATABASE_HOST
+              value: "mysql"
+            - name: DATABASE_PORT
+              value: "3306"
+            - name: DATABASE_DB
+              value: "superset"
+            - name: DATABASE_PASSWORD
+              value: "83VDXRV5RAQJ7bk4Sg41Mz7q"
+            - name: DATABASE_USER
+              value: "superset"
+            - name: OAUTH2_CLIENT_ID
+              value: "9i7ptkJ4MCbSQV9r"
+            - name: OAUTH2_CLIENT_SECRET
+              value: "4FYoh0RsE3PA9qvT"
+            - name: SECRET_KEY
+              value: "6UDIsoIHFGwIqonQsp6Bl5ZC"
+            - name: PYTHONPATH
+              value: "/app/pythonpath:/app/docker/pythonpath_dev"
+            - name: REDIS_HOST
+              value: "redis"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_PASSWORD
+              value: ""
+            - name: FLASK_DEBUG
+              value: "0"
+            - name: GUNICORN_KEEPALIVE
+              value: '5'
+            - name: SUPERSET_ENV
+              value: "production"
+            - name: SUPERSET_HOST
+              value: "superset.www.myopenedx.com"
+            - name: SUPERSET_PORT
+              value: "8088"
+            - name: OAUTH2_ACCESS_TOKEN_PATH
+              value: "/oauth2/access_token/"
+            - name: OAUTH2_AUTHORIZE_PATH
+              value: "/oauth2/authorize/"
+            - name: OPENEDX_COURSES_LIST_PATH
+              value: "/api/courses/v1/courses/?permissions={permission}&username={username}"
+            - name: OPENEDX_LMS_ROOT_URL
+              value: "http://www.myopenedx.com"
+          volumeMounts:
+            - mountPath: /app/docker
+              name: docker
+            - mountPath: /app/pythonpath
+              name: pythonpath
+            - mountPath: /app/pythonpath/openedx
+              name: pythonpath-openedx
+            - mountPath: /app/security
+              name: security
+      volumes:
+        - name: docker
+          configMap:
+            name: superset-docker
+        - name: pythonpath
+          configMap:
+            name: superset-pythonpath
+        - name: pythonpath-openedx
+          configMap:
+            name: superset-pythonpath-openedx
+        - name: security
+          configMap:
+            name: superset-security
+      restartPolicy: Always
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: superset-worker
+  labels:
+    app.kubernetes.io/name: superset-worker
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: superset-worker
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: superset-worker
+    spec:
+      containers:
+        - args:
+            - bash
+            - /app/docker/docker-bootstrap.sh
+            - worker
+          name: superset-worker
+          ports:
+            - containerPort: 8088
+          image: edunext/aspects-superset:2.3.1
+          env:
+            - name: DATABASE_DIALECT
+              value: "mysql"
+            - name: DATABASE_HOST
+              value: "mysql"
+            - name: DATABASE_PORT
+              value: "3306"
+            - name: DATABASE_DB
+              value: "superset"
+            - name: DATABASE_PASSWORD
+              value: "83VDXRV5RAQJ7bk4Sg41Mz7q"
+            - name: DATABASE_USER
+              value: "superset"
+            - name: OAUTH2_CLIENT_ID
+              value: "9i7ptkJ4MCbSQV9r"
+            - name: OAUTH2_CLIENT_SECRET
+              value: "4FYoh0RsE3PA9qvT"
+            - name: SECRET_KEY
+              value: "6UDIsoIHFGwIqonQsp6Bl5ZC"
+            - name: PYTHONPATH
+              value: "/app/pythonpath:/app/docker/pythonpath_dev"
+            - name: REDIS_HOST
+              value: "redis"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_PASSWORD
+              value: ""
+            - name: FLASK_DEBUG
+              value: "0"
+            - name: SUPERSET_ENV
+              value: "production"
+            - name: SUPERSET_HOST
+              value: "superset.www.myopenedx.com"
+            - name: SUPERSET_PORT
+              value: "8088"
+            - name: OAUTH2_ACCESS_TOKEN_PATH
+              value: "/oauth2/access_token/"
+            - name: OAUTH2_AUTHORIZE_PATH
+              value: "/oauth2/authorize/"
+            - name: OPENEDX_COURSES_LIST_PATH
+              value: "/api/courses/v1/courses/?permissions={permission}&username={username}"
+            - name: OPENEDX_LMS_ROOT_URL
+              value: "http://www.myopenedx.com"
+          volumeMounts:
+            - mountPath: /app/docker
+              name: docker
+            - mountPath: /app/pythonpath
+              name: pythonpath
+            - mountPath: /app/pythonpath/openedx
+              name: pythonpath-openedx
+            - mountPath: /app/security
+              name: security
+            - mountPath: /app/scripts
+              name: scripts
+      volumes:
+        - name: docker
+          configMap:
+            name: superset-docker
+        - name: pythonpath
+          configMap:
+            name: superset-pythonpath
+        - name: pythonpath-openedx
+          configMap:
+            name: superset-pythonpath-openedx
+        - name: security
+          configMap:
+            name: superset-security
+        - name: scripts
+          configMap:
+            name: superset-scripts
+      restartPolicy: Always
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: superset-worker-beat
+  labels:
+    app.kubernetes.io/name: superset-worker-beat
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: superset-worker-beat
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: superset-worker-beat
+    spec:
+      containers:
+        - args:
+            - bash
+            - /app/docker/docker-bootstrap.sh
+            - beat
+          name: superset-worker-beat
+          ports:
+            - containerPort: 8088
+          image: edunext/aspects-superset:2.3.1
+          env:
+            - name: DATABASE_DIALECT
+              value: "mysql"
+            - name: DATABASE_HOST
+              value: "mysql"
+            - name: DATABASE_PORT
+              value: "3306"
+            - name: DATABASE_DB
+              value: "superset"
+            - name: DATABASE_PASSWORD
+              value: "83VDXRV5RAQJ7bk4Sg41Mz7q"
+            - name: DATABASE_USER
+              value: "superset"
+            - name: OAUTH2_CLIENT_ID
+              value: "9i7ptkJ4MCbSQV9r"
+            - name: OAUTH2_CLIENT_SECRET
+              value: "4FYoh0RsE3PA9qvT"
+            - name: SECRET_KEY
+              value: "6UDIsoIHFGwIqonQsp6Bl5ZC"
+            - name: PYTHONPATH
+              value: "/app/pythonpath:/app/docker/pythonpath_dev"
+            - name: REDIS_HOST
+              value: "redis"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_PASSWORD
+              value: ""
+            - name: FLASK_DEBUG
+              value: "0"
+            - name: SUPERSET_ENV
+              value: "production"
+            - name: SUPERSET_HOST
+              value: "superset.www.myopenedx.com"
+            - name: SUPERSET_PORT
+              value: "8088"
+            - name: OAUTH2_ACCESS_TOKEN_PATH
+              value: "/oauth2/access_token/"
+            - name: OAUTH2_AUTHORIZE_PATH
+              value: "/oauth2/authorize/"
+            - name: OPENEDX_COURSES_LIST_PATH
+              value: "/api/courses/v1/courses/?permissions={permission}&username={username}"
+            - name: OPENEDX_LMS_ROOT_URL
+              value: "http://www.myopenedx.com"
+          volumeMounts:
+            - mountPath: /app/docker
+              name: docker
+            - mountPath: /app/pythonpath
+              name: pythonpath
+            - mountPath: /app/pythonpath/openedx
+              name: pythonpath-openedx
+            - mountPath: /app/security
+              name: security
+      volumes:
+        - name: docker
+          configMap:
+            name: superset-docker
+        - name: pythonpath
+          configMap:
+            name: superset-pythonpath
+        - name: pythonpath-openedx
+          configMap:
+            name: superset-pythonpath-openedx
+        - name: security
+          configMap:
+            name: superset-security
+      restartPolicy: Always
+
+
+
+
+
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mfe
+  labels:
+    app.kubernetes.io/name: mfe
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mfe
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mfe
+    spec:
+      containers:
+        - name: mfe
+          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:teak-demo-mfe
+          ports:
+            - containerPort: 8002
+          volumeMounts:
+            - mountPath: /etc/caddy/
+              name: config
+      volumes:
+        - name: config
+          configMap:
+            name: mfe-caddy-config

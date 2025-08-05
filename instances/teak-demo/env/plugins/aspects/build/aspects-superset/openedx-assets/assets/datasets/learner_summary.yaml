@@ -1,0 +1,414 @@
+_file_name: learner_summary.yaml
+always_filter_main_dttm: false
+cache_timeout: null
+columns:
+- advanced_data_type: null
+  column_name: course_key
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: LowCardinality(String)
+  verbose_name: Course Key
+- advanced_data_type: null
+  column_name: enrollment_mode
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: LowCardinality(String)
+  verbose_name: Enrollment Track
+- advanced_data_type: null
+  column_name: course_grade
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: Float64
+  verbose_name: Course Grade
+- advanced_data_type: null
+  column_name: actor_id
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Actor Id
+- advanced_data_type: null
+  column_name: course_name
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Course Name
+- advanced_data_type: null
+  column_name: course_run
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Course Run
+- advanced_data_type: null
+  column_name: emission_time
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: true
+  python_date_format: null
+  type: DateTime
+  verbose_name: Enrollment Date
+- advanced_data_type: null
+  column_name: last_visited
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: true
+  python_date_format: null
+  type: DateTime
+  verbose_name: Last Visited
+- advanced_data_type: null
+  column_name: enrollment_status
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Enrollment Status
+- advanced_data_type: null
+  column_name: grade_bucket
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Grade Range
+- advanced_data_type: null
+  column_name: org
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: LowCardinality(String)
+  verbose_name: Organization
+- advanced_data_type: null
+  column_name: approving_state
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Passed/Failed
+- advanced_data_type: null
+  column_name: email
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Email
+- advanced_data_type: null
+  column_name: name
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Name
+- advanced_data_type: null
+  column_name: username
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Username
+database_uuid: 21174b6c-4d40-4958-8161-d6c3cf5e77b6
+default_endpoint: null
+description: null
+extra: null
+fetch_values_predicate: null
+filter_select_enabled: true
+main_dttm_col: emission_time
+metrics:
+- currency: null
+  d3format: null
+  description: null
+  expression: COUNT(*)
+  extra:
+    warning_markdown: ''
+  metric_name: count
+  metric_type: count
+  verbose_name: COUNT(*)
+  warning_text: null
+normalize_columns: false
+offset: 0
+params: null
+schema: 'reporting'
+sql: |
+  with
+      latest_emission_time as (
+          select org, course_key, actor_id, MAX(emission_time) as last_visited
+          from reporting.dim_learner_last_course_visit
+          where
+              1 = 1
+              {% if filter_values("org") != [] %}
+      and org in {{ filter_values("org") | where_in }}
+  {% endif %}
+
+  {% if filter_values("course_name") != [] %}
+      and course_key in (
+          select course_key
+          from event_sink.dim_course_names
+          where course_name in {{ filter_values("course_name") | where_in }}
+      )
+  {% endif %}
+
+  {% if filter_values("tag") != [] %}
+      and course_key in (
+          select course_key
+          from
+              reporting.dim_most_recent_course_tags
+          where
+              tag in (select replaceAll(arrayJoin({{ filter_values("tag") }}), '- ', ''))
+      )
+  {% endif %}
+              {% if filter_values("username") != [] or filter_values(
+      "name"
+  ) != [] or filter_values("email") != [] %}
+      and actor_id in (
+          select external_user_id::String
+          from event_sink.user_pii
+          where
+              1 = 1
+              {% if filter_values("username") != [] %}
+                  and username in {{ filter_values("username") | where_in }}
+              {% endif %}
+              {% if filter_values("name") != [] %}
+                  and name in {{ filter_values("name") | where_in }}
+              {% endif %}
+              {% if filter_values("email") != [] %}
+                  and email in {{ filter_values("email") | where_in }}
+              {% endif %}
+      )
+  {% endif %}
+          group by org, course_key, actor_id
+      ),
+      enrollment_status as (
+          select org, course_key, actor_id, MAX(emission_time) as max_emission_time
+          from reporting.dim_most_recent_enrollment
+          where
+              1 = 1
+              {% if filter_values("org") != [] %}
+      and org in {{ filter_values("org") | where_in }}
+  {% endif %}
+
+  {% if filter_values("course_name") != [] %}
+      and course_key in (
+          select course_key
+          from event_sink.dim_course_names
+          where course_name in {{ filter_values("course_name") | where_in }}
+      )
+  {% endif %}
+
+  {% if filter_values("tag") != [] %}
+      and course_key in (
+          select course_key
+          from
+              reporting.dim_most_recent_course_tags
+          where
+              tag in (select replaceAll(arrayJoin({{ filter_values("tag") }}), '- ', ''))
+      )
+  {% endif %}
+              {% if filter_values("username") != [] or filter_values(
+      "name"
+  ) != [] or filter_values("email") != [] %}
+      and actor_id in (
+          select external_user_id::String
+          from event_sink.user_pii
+          where
+              1 = 1
+              {% if filter_values("username") != [] %}
+                  and username in {{ filter_values("username") | where_in }}
+              {% endif %}
+              {% if filter_values("name") != [] %}
+                  and name in {{ filter_values("name") | where_in }}
+              {% endif %}
+              {% if filter_values("email") != [] %}
+                  and email in {{ filter_values("email") | where_in }}
+              {% endif %}
+      )
+  {% endif %}
+          group by org, course_key, actor_id
+      ),
+      student_status as (
+          select
+              fss.org as org,
+              fss.course_key as course_key,
+              fss.actor_id as actor_id,
+              fss.course_name as course_name,
+              fss.course_run as course_run,
+              fss.approving_state as approving_state,
+              fss.enrollment_mode as enrollment_mode,
+              fss.enrollment_status as enrollment_status,
+              fss.course_grade as course_grade,
+              fss.grade_bucket as grade_bucket,
+              fss.username as username,
+              fss.name as name,
+              fss.email as email,
+              fss.enrolled_at as enrolled_at
+          from reporting.dim_student_status fss
+          where
+              1 = 1
+              {% if filter_values("org") != [] %}
+      and org in {{ filter_values("org") | where_in }}
+  {% endif %}
+
+  {% if filter_values("course_name") != [] %}
+      and course_key in (
+          select course_key
+          from event_sink.dim_course_names
+          where course_name in {{ filter_values("course_name") | where_in }}
+      )
+  {% endif %}
+
+  {% if filter_values("tag") != [] %}
+      and course_key in (
+          select course_key
+          from
+              reporting.dim_most_recent_course_tags
+          where
+              tag in (select replaceAll(arrayJoin({{ filter_values("tag") }}), '- ', ''))
+      )
+  {% endif %}
+              {% if filter_values("username") != [] or filter_values(
+      "name"
+  ) != [] or filter_values("email") != [] %}
+      and actor_id in (
+          select external_user_id::String
+          from event_sink.user_pii
+          where
+              1 = 1
+              {% if filter_values("username") != [] %}
+                  and username in {{ filter_values("username") | where_in }}
+              {% endif %}
+              {% if filter_values("name") != [] %}
+                  and name in {{ filter_values("name") | where_in }}
+              {% endif %}
+              {% if filter_values("email") != [] %}
+                  and email in {{ filter_values("email") | where_in }}
+              {% endif %}
+      )
+  {% endif %}
+      )
+  select
+      fss.org as org,
+      fss.course_key as course_key,
+      fss.actor_id as actor_id,
+      fss.course_name as course_name,
+      fss.course_run as course_run,
+      fss.approving_state as approving_state,
+      fss.enrollment_mode as enrollment_mode,
+      fss.enrollment_status as enrollment_status,
+      fss.course_grade as course_grade,
+      fss.grade_bucket as grade_bucket,
+      fss.username as username,
+      fss.name as name,
+      fss.email as email,
+      fes.max_emission_time as emission_time,
+      GREATEST(let.last_visited, fss.enrolled_at) as last_visited
+  from student_status fss
+  left join
+      enrollment_status fes
+      on fss.org = fes.org
+      and fss.course_key = fes.course_key
+      and fss.actor_id = fes.actor_id
+  left join
+      latest_emission_time let
+      on fss.org = let.org
+      and fss.course_key = let.course_key
+      and fss.actor_id = let.actor_id
+  where 1 = 1 {% if filter_values("org") != [] %}
+      and org in {{ filter_values("org") | where_in }}
+  {% endif %}
+
+  {% if filter_values("course_name") != [] %}
+      and course_key in (
+          select course_key
+          from event_sink.dim_course_names
+          where course_name in {{ filter_values("course_name") | where_in }}
+      )
+  {% endif %}
+
+  {% if filter_values("tag") != [] %}
+      and course_key in (
+          select course_key
+          from
+              reporting.dim_most_recent_course_tags
+          where
+              tag in (select replaceAll(arrayJoin({{ filter_values("tag") }}), '- ', ''))
+      )
+  {% endif %}
+table_name: learner_summary
+template_params: null
+uuid: da75efef-09ba-4ed0-8b6b-bf11c5c26008
+version: 1.0.0

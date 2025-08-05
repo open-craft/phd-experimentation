@@ -1,0 +1,25 @@
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: meilisearch
+  namespace: openedx
+  annotations:
+    cert-manager.io/issuer: letsencrypt
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: meilisearch.www.myopenedx.com
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: caddy
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - meilisearch.www.myopenedx.com
+    secretName: meilisearch-host-tls

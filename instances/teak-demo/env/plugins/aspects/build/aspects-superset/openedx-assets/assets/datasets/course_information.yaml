@@ -1,0 +1,206 @@
+_file_name: course_information.yaml
+always_filter_main_dttm: false
+cache_timeout: null
+columns:
+- advanced_data_type: null
+  column_name: active_learner
+  description: null
+  expression: null
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: Nullable(String)
+  verbose_name: Active Learner
+- advanced_data_type: null
+  column_name: enrollment_mode
+  description: null
+  expression: null
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: LowCardinality(String)
+  verbose_name: Enrollment Mode
+- advanced_data_type: null
+  column_name: actor_id
+  description: null
+  expression: null
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Actor Id
+- advanced_data_type: null
+  column_name: course_name
+  description: null
+  expression: null
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Course Name
+- advanced_data_type: null
+  column_name: course_run
+  description: null
+  expression: null
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Course Run
+- advanced_data_type: null
+  column_name: course_tag
+  description: null
+  expression: null
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Course Tag
+- advanced_data_type: null
+  column_name: org
+  description: null
+  expression: null
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: LowCardinality(String)
+  verbose_name: Org
+- advanced_data_type: null
+  column_name: course_key
+  description: null
+  expression: null
+  extra:
+    warning_markdown: null
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: LowCardinality(String)
+  verbose_name: Course Key
+database_uuid: 21174b6c-4d40-4958-8161-d6c3cf5e77b6
+default_endpoint: null
+description: null
+extra: null
+fetch_values_predicate: null
+filter_select_enabled: true
+main_dttm_col: emission_time
+metrics:
+- currency: null
+  d3format: null
+  description: null
+  expression: uniq(active_learner,course_run)
+  extra:
+    warning_markdown: ''
+  metric_name: active_count
+  metric_type: null
+  verbose_name: Active Within Last 7 Days
+  warning_text: null
+- currency: null
+  d3format: null
+  description: null
+  expression: |-
+    replaceAll(replaceRegexpAll(toString(groupArray(distinct course_tag)),'\[|\]|\'',''),',',', ')
+  extra:
+    warning_markdown: ''
+  metric_name: tag_list
+  metric_type: null
+  verbose_name: Tags
+  warning_text: null
+- currency: null
+  d3format: null
+  description: null
+  expression: uniq(actor_id,course_run)
+  extra:
+    warning_markdown: ''
+  metric_name: enrollees
+  metric_type: null
+  verbose_name: Current Enrollees
+  warning_text: null
+- currency: null
+  d3format: null
+  description: null
+  expression: COUNT(*)
+  extra:
+    warning_markdown: ''
+  metric_name: count
+  metric_type: count
+  verbose_name: COUNT(*)
+  warning_text: null
+normalize_columns: false
+offset: 0
+params: null
+schema: 'reporting'
+sql: |-
+  select
+      fes.org as org,
+      cn.course_name as course_name,
+      course_run,
+      fes.actor_id as actor_id,
+      fes.enrollment_mode as enrollment_mode,
+      case
+          when flfc.emission_time >= subtractDays(now(), 7) then actor_id else null
+      end as active_learner,
+      tag as course_tag,
+      fes.course_key as course_key
+  from reporting.dim_most_recent_enrollment fes
+  left join
+      reporting.dim_learner_last_course_visit flfc
+      on fes.org = flfc.org
+      and fes.course_key = flfc.course_key
+      and fes.actor_id = flfc.actor_id
+  left join
+      event_sink.dim_course_names cn
+      on fes.org = cn.org
+      and fes.course_key = cn.course_key
+  left join
+      reporting.dim_most_recent_course_tags mrct
+      on mrct.course_key = fes.course_key
+  where
+      enrollment_status = 'registered'
+      {% if filter_values("org") != [] %}
+      and org in {{ filter_values("org") | where_in }}
+  {% endif %}
+
+  {% if filter_values("course_name") != [] %}
+      and course_key in (
+          select course_key
+          from event_sink.dim_course_names
+          where course_name in {{ filter_values("course_name") | where_in }}
+      )
+  {% endif %}
+
+  {% if filter_values("tag") != [] %}
+      and course_key in (
+          select course_key
+          from
+              reporting.dim_most_recent_course_tags
+          where
+              tag in (select replaceAll(arrayJoin({{ filter_values("tag") }}), '- ', ''))
+      )
+  {% endif %}
+table_name: course_information
+template_params: null
+uuid: 27a4476b-5a9a-4fc4-ac75-da520b522341
+version: 1.0.0

@@ -1,0 +1,557 @@
+_file_name: at_risk_video_watches.yaml
+always_filter_main_dttm: false
+cache_timeout: null
+columns:
+- advanced_data_type: null
+  column_name: video_name_with_location
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Video Name With Location
+- advanced_data_type: null
+  column_name: video_segment_count
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: Float64
+  verbose_name: Video Segment Count
+- advanced_data_type: null
+  column_name: watched_segment_count
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: UInt64
+  verbose_name: Watched Segment Count
+- advanced_data_type: null
+  column_name: watched_entire_video
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: UInt8
+  verbose_name: Watched Entire Video
+- advanced_data_type: null
+  column_name: course_key
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: LowCardinality(String)
+  verbose_name: Course Key
+- advanced_data_type: null
+  column_name: actor_id
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Actor ID
+- advanced_data_type: null
+  column_name: course_name
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Course Name
+- advanced_data_type: null
+  column_name: course_run
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Course Run
+- advanced_data_type: null
+  column_name: subsection_with_name
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Subsection Name
+- advanced_data_type: null
+  column_name: section_with_name
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Section Name
+- advanced_data_type: null
+  column_name: video_name
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Video Name
+- advanced_data_type: null
+  column_name: video_link
+  description: null
+  expression: null
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Video Link
+- advanced_data_type: null
+  column_name: org
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: LowCardinality(String)
+  verbose_name: Organization
+- advanced_data_type: null
+  column_name: email
+  description: null
+  expression: null
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Email
+- advanced_data_type: null
+  column_name: name
+  description: null
+  expression: null
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Name
+- advanced_data_type: null
+  column_name: username
+  description: null
+  expression: null
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Username
+database_uuid: 21174b6c-4d40-4958-8161-d6c3cf5e77b6
+default_endpoint: null
+description: null
+extra: {}
+fetch_values_predicate: null
+filter_select_enabled: false
+main_dttm_col: null
+metrics:
+- currency: null
+  d3format: null
+  description: null
+  expression: count(*) - count(distinct actor_id)
+  extra:
+    warning_markdown: ''
+  metric_name: repeat_views
+  metric_type: null
+  verbose_name: Repeat Views
+  warning_text: null
+- currency: null
+  d3format: null
+  description: null
+  expression: count(distinct actor_id)
+  extra:
+    warning_markdown: ''
+  metric_name: unique_viewers
+  metric_type: null
+  verbose_name: Unique Viewers
+  warning_text: null
+- currency: null
+  d3format: null
+  description: null
+  expression: count(*)
+  extra:
+    warning_markdown: ''
+  metric_name: count
+  metric_type: null
+  verbose_name: Total Views
+  warning_text: null
+normalize_columns: true
+offset: 0
+params: null
+schema: 'reporting'
+sql: |
+  with watches as (with
+      watched_segments as (
+          with
+      video_events as (
+          select
+              emission_time,
+              org,
+              course_key,
+              splitByString('/xblock/', object_id)[-1] as video_id,
+              object_id,
+              actor_id,
+              verb_id,
+              video_position,
+              video_duration
+          from xapi.video_playback_events
+          where 1 = 1 {% if filter_values("org") != [] %}
+      and org in {{ filter_values("org") | where_in }}
+  {% endif %}
+
+  {% if filter_values("course_name") != [] %}
+      and course_key in (
+          select course_key
+          from event_sink.dim_course_names
+          where course_name in {{ filter_values("course_name") | where_in }}
+      )
+  {% endif %}
+
+  {% if filter_values("tag") != [] %}
+      and course_key in (
+          select course_key
+          from
+              reporting.dim_most_recent_course_tags
+          where
+              tag in (select replaceAll(arrayJoin({{ filter_values("tag") }}), '- ', ''))
+      )
+  {% endif %}
+      ),
+      starts as (
+          select *
+          from video_events
+          where verb_id = 'https://w3id.org/xapi/video/verbs/played'
+      ),
+      ends as (
+          select *
+          from video_events
+          where
+              verb_id in (
+                  'http://adlnet.gov/expapi/verbs/completed',
+                  'https://w3id.org/xapi/video/verbs/seeked',
+                  'https://w3id.org/xapi/video/verbs/paused',
+                  'http://adlnet.gov/expapi/verbs/terminated'
+              )
+      ),
+      segments as (
+          select
+              starts.org as org,
+              starts.course_key as course_key,
+              starts.video_id as video_id,
+              starts.actor_id as actor_id,
+              starts.object_id as object_id,
+              cast(starts.video_position as Int32) as start_position,
+              cast(ends.video_position as Int32) as end_position,
+              starts.emission_time as started_at,
+              ends.emission_time as ended_at,
+              ends.verb_id as end_type,
+              starts.video_duration as video_duration
+          from starts left
+          asof join
+              ends
+              on (
+                  starts.org = ends.org
+                  and starts.course_key = ends.course_key
+                  and starts.video_id = ends.video_id
+                  and starts.actor_id = ends.actor_id
+                  and starts.emission_time < ends.emission_time
+              )
+      ),
+      enriched_segments as (
+          select
+              segments.org as org,
+              segments.course_key as course_key,
+              blocks.course_name as course_name,
+              blocks.course_run as course_run,
+              blocks.section_with_name as section_with_name,
+              blocks.subsection_with_name as subsection_with_name,
+              blocks.block_name as video_name,
+              blocks.display_name_with_location as video_name_with_location,
+              segments.actor_id as actor_id,
+              segments.object_id as object_id,
+              segments.started_at as started_at,
+              segments.start_position - (segments.start_position % 5) as start_position,
+              segments.end_position - (segments.end_position % 5) as end_position,
+              segments.video_duration as video_duration,
+              segments.video_id as video_id,
+              blocks.subsection_number as video_number,
+              blocks.block_id as block_id
+          from segments
+          join
+              reporting.dim_course_blocks blocks
+              on (
+                  segments.course_key = blocks.course_key
+                  and segments.video_id = blocks.block_id
+              )
+          where 1 = 1 {% if filter_values("org") != [] %}
+      and org in {{ filter_values("org") | where_in }}
+  {% endif %}
+
+  {% if filter_values("course_name") != [] %}
+      and course_key in (
+          select course_key
+          from event_sink.dim_course_names
+          where course_name in {{ filter_values("course_name") | where_in }}
+      )
+  {% endif %}
+
+  {% if filter_values("tag") != [] %}
+      and course_key in (
+          select course_key
+          from
+              reporting.dim_most_recent_course_tags
+          where
+              tag in (select replaceAll(arrayJoin({{ filter_values("tag") }}), '- ', ''))
+      )
+  {% endif %}
+      ),
+      final_results as (
+          select
+              org,
+              course_key,
+              course_name,
+              course_run,
+              section_with_name,
+              subsection_with_name,
+              video_name,
+              video_name_with_location,
+              video_id,
+              concat(
+                  '<a href="',
+                  object_id,
+                  '" target="_blank">',
+                  video_name_with_location,
+                  '</a>'
+              ) as video_link,
+              actor_id,
+              started_at,
+              arrayJoin(range(end_position, start_position, 5)) as segment_start,
+              video_duration,
+              CONCAT(
+                  toString(segment_start), '-', toString(segment_start + 4)
+              ) as segment_range,
+              start_position,
+              formatDateTime(
+                  toDate(now()) + toIntervalSecond(segment_start), '%T'
+              ) as time_stamp,
+              arrayStringConcat(
+                  arrayMap(
+                      x -> (leftPad(x, 2, char(917768))), splitByString(':', video_number)
+                  ),
+                  ':'
+              ) as video_location,
+              splitByString(' - ', video_name_with_location) as _video_with_name,
+              arrayStringConcat(
+                  arrayMap(
+                      x -> (leftPad(x, 2, char(917768))),
+                      splitByString(':', _video_with_name[1])
+                  ),
+                  ':'
+              ) as video_number,
+              concat(video_number, ' - ', _video_with_name[2]) as video_name_location,
+              splitByChar('@', block_id)[3] as block_id,
+              username,
+              name,
+              email
+          from enriched_segments
+          left outer join
+              reporting.dim_user_pii users
+              on (actor_id like 'mailto:%' and SUBSTRING(actor_id, 8) = users.email)
+              or actor_id = toString(users.external_user_id)
+      )
+  select * except (_video_with_name)
+  from final_results
+  order by segment_start
+      )
+
+  select
+      org,
+      course_key,
+      course_name,
+      course_run,
+      section_with_name,
+      subsection_with_name,
+      video_name,
+      video_name_with_location,
+      video_link,
+      actor_id,
+      username,
+      email,
+      name,
+      count(distinct segment_start) as watched_segment_count,
+      (video_duration - 10) / 5 as video_segment_count,
+      video_segment_count <= watched_segment_count as watched_entire_video
+  from watched_segments
+  where
+      1 = 1
+      
+      {% if filter_values("Section Name") != [] %}
+          and section_with_name in {{ filter_values("Section Name") | where_in }}
+      {% endif %}
+      {% if filter_values("Subsection Name") != [] %}
+          and subsection_with_name in {{ filter_values("Subsection Name") | where_in }}
+      {% endif %}
+      {% if from_dttm %} and started_at > '{{ from_dttm }}' {% endif %}
+      {% if to_dttm %} and started_at < '{{ to_dttm }}' {% endif %}
+      
+  group by
+      org,
+      course_key,
+      course_name,
+      course_run,
+      section_with_name,
+      subsection_with_name,
+      video_name,
+      video_name_with_location,
+      video_link,
+      actor_id,
+      video_id,
+      video_segment_count,
+      username,
+      email,
+      name)
+
+  select watches.*
+  from watches
+  join
+      (
+          with
+      page_visits as (
+          select org, course_key, actor_id, max(emission_time) as last_visited
+          from reporting.dim_learner_last_course_visit
+          where
+              1 = 1
+              {% if filter_values("org") != [] %}
+      and org in {{ filter_values("org") | where_in }}
+  {% endif %}
+
+  {% if filter_values("course_name") != [] %}
+      and course_key in (
+          select course_key
+          from event_sink.dim_course_names
+          where course_name in {{ filter_values("course_name") | where_in }}
+      )
+  {% endif %}
+
+  {% if filter_values("tag") != [] %}
+      and course_key in (
+          select course_key
+          from
+              reporting.dim_most_recent_course_tags
+          where
+              tag in (select replaceAll(arrayJoin({{ filter_values("tag") }}), '- ', ''))
+      )
+  {% endif %}
+              and emission_time < subtractDays(now(), 7)
+          group by org, course_key, actor_id
+      )
+
+  select org, course_key, learners.actor_id as actor_id
+  from reporting.dim_student_status learners
+  join page_visits using (org, course_key, actor_id)
+  where
+      approving_state = 'failed' and enrollment_status = 'registered'
+      {% if filter_values("org") != [] %}
+      and org in {{ filter_values("org") | where_in }}
+  {% endif %}
+
+  {% if filter_values("course_name") != [] %}
+      and course_key in (
+          select course_key
+          from event_sink.dim_course_names
+          where course_name in {{ filter_values("course_name") | where_in }}
+      )
+  {% endif %}
+
+  {% if filter_values("tag") != [] %}
+      and course_key in (
+          select course_key
+          from
+              reporting.dim_most_recent_course_tags
+          where
+              tag in (select replaceAll(arrayJoin({{ filter_values("tag") }}), '- ', ''))
+      )
+  {% endif %}
+      ) as at_risk_learners using (org, course_key, actor_id)
+  where 1 = 1 {% if filter_values("org") != [] %}
+      and org in {{ filter_values("org") | where_in }}
+  {% endif %}
+
+  {% if filter_values("course_name") != [] %}
+      and course_key in (
+          select course_key
+          from event_sink.dim_course_names
+          where course_name in {{ filter_values("course_name") | where_in }}
+      )
+  {% endif %}
+
+  {% if filter_values("tag") != [] %}
+      and course_key in (
+          select course_key
+          from
+              reporting.dim_most_recent_course_tags
+          where
+              tag in (select replaceAll(arrayJoin({{ filter_values("tag") }}), '- ', ''))
+      )
+  {% endif %}
+table_name: at_risk_video_watches
+template_params: null
+uuid: b422bdfe-0bbb-4191-888d-d0839878fb31
+version: 1.0.0

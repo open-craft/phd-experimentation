@@ -1,0 +1,97 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-lms
+  namespace: openedx
+  annotations:
+    cert-manager.io/issuer: letsencrypt
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: www.myopenedx.com
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/learning"
+        backend:
+          service:
+            name: caddy
+            port:
+              number: 80
+
+      - pathType: Prefix
+        path: "/authn"
+        backend:
+          service:
+            name: caddy
+            port:
+              number: 80
+      - pathType: Prefix
+        path: "/account"
+        backend:
+          service:
+            name: caddy
+            port:
+              number: 80
+      - pathType: Prefix
+        path: "/communications"
+        backend:
+          service:
+            name: caddy
+            port:
+              number: 80
+      - pathType: Prefix
+        path: "/discussions"
+        backend:
+          service:
+            name: caddy
+            port:
+              number: 80
+      - pathType: Prefix
+        path: "/gradebook"
+        backend:
+          service:
+            name: caddy
+            port:
+              number: 80
+      - pathType: Prefix
+        path: "/learner-dashboard"
+        backend:
+          service:
+            name: caddy
+            port:
+              number: 80
+      - pathType: Prefix
+        path: "/learning"
+        backend:
+          service:
+            name: caddy
+            port:
+              number: 80
+      - pathType: Prefix
+        path: "/ora-grading"
+        backend:
+          service:
+            name: caddy
+            port:
+              number: 80
+      - pathType: Prefix
+        path: "/profile"
+        backend:
+          service:
+            name: caddy
+            port:
+              number: 80
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: caddy
+            port:
+              number: 80
+      
+  tls:
+  - hosts:
+    - www.myopenedx.com
+    secretName: lms-host-tls

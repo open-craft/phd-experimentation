@@ -1,0 +1,184 @@
+_file_name: graded_subsection_performance.yaml
+always_filter_main_dttm: false
+cache_timeout: null
+catalog: null
+columns:
+- advanced_data_type: null
+  column_name: course_key
+  description: null
+  expression: ''
+  extra:
+    warning_markdown: null
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: LowCardinality(String)
+  verbose_name: Course Key
+- advanced_data_type: null
+  column_name: avg_score
+  description: null
+  expression: ''
+  extra:
+    warning_markdown: null
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: Float64
+  verbose_name: Avg Score
+- advanced_data_type: null
+  column_name: total_avg
+  description: null
+  expression: ''
+  extra:
+    warning_markdown: null
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: Float64
+  verbose_name: Total Avg
+- advanced_data_type: null
+  column_name: block_id
+  description: null
+  expression: null
+  extra:
+    warning_markdown: null
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Block Id
+- advanced_data_type: null
+  column_name: org
+  description: null
+  expression: ''
+  extra:
+    warning_markdown: null
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: LowCardinality(String)
+  verbose_name: Org
+- advanced_data_type: null
+  column_name: score_range
+  description: null
+  expression: null
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Score Range
+database_uuid: 21174b6c-4d40-4958-8161-d6c3cf5e77b6
+default_endpoint: null
+description: null
+extra: null
+fetch_values_predicate: null
+filter_select_enabled: true
+main_dttm_col: null
+metrics:
+- currency: null
+  d3format: null
+  description: null
+  expression: COUNT(*)
+  extra:
+    warning_markdown: ''
+  metric_name: count
+  metric_type: count
+  verbose_name: Count of Scores
+  warning_text: null
+- currency: null
+  d3format: null
+  description: null
+  expression: max(sortnum)
+  extra:
+    warning_markdown: ''
+  metric_name: sort
+  metric_type: null
+  verbose_name: sort
+  warning_text: null
+normalize_columns: false
+offset: 0
+params: null
+schema: reporting
+sql: |-
+  with
+      section_data as (
+          select
+              last_response.org as org,
+              last_response.course_key as course_key,
+              last_response.actor_id as actor_id,
+              subsection_blocks.block_id as block_id,
+              last_response.scaled_score as scaled_score
+          from reporting.dim_learner_last_response last_response
+          join
+              reporting.dim_course_blocks problem_blocks
+              on problem_blocks.block_id = last_response.problem_id
+              and last_response.course_key = problem_blocks.course_key
+          left join
+              reporting.dim_course_blocks subsection_blocks
+              on problem_blocks.subsection_number = subsection_blocks.hierarchy_location
+              and last_response.org = subsection_blocks.org
+              and last_response.course_key = subsection_blocks.course_key
+              and (
+                  subsection_blocks.block_id like '%@sequential+block@%'
+                  or subsection_blocks.block_id like '%@chapter+block@%'
+              )
+          where problem_blocks.graded
+      ),
+      avg_actor as (
+          select org, course_key, block_id, avg(scaled_score) as avg_score, actor_id
+          from section_data
+          group by org, course_key, block_id, actor_id
+      ),
+      avg_total as (
+          select org, course_key, block_id, avg(scaled_score) as total_avg
+          from section_data
+          group by org, course_key, block_id
+      ),
+      combine as (
+          select
+              avg_actor.org as org,
+              avg_actor.course_key as course_key,
+              avg_actor.block_id as block_id,
+              round(avg_actor.avg_score * 100, 2) as avg_score,
+              round(avg_total.total_avg, 2) as total_avg,
+              case
+                  when avg_score > 90
+                  then '>90%'
+                  when avg_score > 70
+                  then '71-90%'
+                  when avg_score > 50
+                  then '51-70%'
+                  when avg_score > 30
+                  then '31-50%'
+                  when avg_score > 0
+                  then '1-30%'
+                  else '0%'
+              end as score_range
+          from avg_actor
+          join avg_total using (org, course_key, block_id)
+      )
+  select
+      org,
+      course_key,
+      splitByChar('@', block_id)[3] as block_id,
+      avg_score,
+      total_avg,
+      score_range
+  from combine
+table_name: graded_subsection_performance
+template_params: null
+uuid: cf42fc53-39e1-4c3c-a7f6-3d0d17a947dc
+version: 1.0.0

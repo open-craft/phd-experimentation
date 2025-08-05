@@ -1,0 +1,89 @@
+data_dir = "/vector-data-dir"
+
+# Vector's API for introspection
+[api]
+enabled = true
+address = "0.0.0.0:8686"
+
+### Sources
+# Capture logs from kubernetes
+[sources.kubernetes_logs]
+type = "kubernetes_logs"
+extra_namespace_label_selector = "kubernetes.io/metadata.name=openedx"
+[transforms.openedx_containers]
+type = "filter"
+inputs = ["kubernetes_logs"]
+condition = '.kubernetes.pod_namespace == "openedx" && includes(["lms", "cms", "lms-job", "cms-job", "lms-worker", "cms-worker"], .kubernetes.container_name)'
+
+### Tracking logs
+
+
+
+### xAPI
+
+
+[transforms.xapi]
+type = "remap"
+inputs = ["openedx_containers"]
+# Time formats: https://docs.rs/chrono/0.4.19/chrono/format/strftime/index.html#specifiers
+
+source = '''
+parsed, err_regex = parse_regex(.message, r'^.* \[xapi_tracking\] [^{}]* (?P<tracking_message>\{.*\})$')
+if err_regex != null {
+  abort
+}
+message, err = strip_whitespace(parsed.tracking_message)
+
+parsed_json, err_json = parse_json(parsed.tracking_message)
+
+if err_json != null {
+  log("Unable to parse JSON from xapi tracking log message: " + err_json, level: "error")
+  abort
+}
+
+time, err_timestamp = parse_timestamp(parsed_json.timestamp, "%+")
+if err_timestamp != null {
+  log("Unable to parse timestamp from tracking log 'time' field: " + err_timestamp, level: "warn")
+  time, err_timestamp = parse_timestamp(parsed_json.timestamp, "%+")
+  if err_timestamp != null {
+    log("Unable to parse timestamp from tracking log 'timestamp' field: " + err_timestamp, level: "error")
+    abort
+  }
+}
+event_id = parsed_json.id
+. = {"event_id": event_id, "emission_time": format_timestamp!(time, format: "%+"), "event": encode_json(parsed_json)}
+'''
+drop_on_error = true
+drop_on_abort = true
+
+[transforms.xapi_debug]
+type = "remap"
+inputs = ["xapi"]
+# Time formats: https://docs.rs/chrono/0.4.19/chrono/format/strftime/index.html#specifiers
+source = '''
+.message = parse_json!(.event)
+'''
+
+[sinks.out_xapi]
+type = "console"
+inputs = ["xapi_debug"]
+encoding.codec = "json"
+encoding.only_fields = ["event_id", "emission_time", "event"]
+
+[sinks.clickhouse_xapi]
+type = "clickhouse"
+auth.strategy = "basic"
+auth.user = "ch_vector"
+auth.password = "APbsOCkOGqEmru1RKhaupMFH"
+# Required: https://github.com/timberio/vector/issues/5797
+encoding.timestamp_format = "unix"
+# Allows better parsing of date times
+date_time_best_effort = true
+inputs = ["xapi"]
+endpoint = "http://clickhouse:8123"
+database = "openedx"
+table = "xapi_events_all"
+healthcheck = true
+
+
+

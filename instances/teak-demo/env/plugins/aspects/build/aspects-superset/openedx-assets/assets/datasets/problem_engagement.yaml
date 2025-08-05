@@ -1,0 +1,288 @@
+_file_name: problem_engagement.yaml
+always_filter_main_dttm: false
+cache_timeout: null
+columns:
+- advanced_data_type: null
+  column_name: course_key
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: LowCardinality(String)
+  verbose_name: Course Key
+- advanced_data_type: null
+  column_name: actor_id
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Actor Id
+- advanced_data_type: null
+  column_name: content_level
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Content Level
+- advanced_data_type: null
+  column_name: course_run
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Course Run
+- advanced_data_type: null
+  column_name: org
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: LowCardinality(String)
+  verbose_name: Org
+- advanced_data_type: null
+  column_name: email
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Email
+- advanced_data_type: null
+  column_name: name
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Name
+- advanced_data_type: null
+  column_name: username
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: Username
+- advanced_data_type: null
+  column_name: section_subsection_problem_engagement
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: section_subsection_problem_engagement
+- advanced_data_type: null
+  column_name: section_subsection_name
+  description: null
+  expression: ''
+  extra: {}
+  filterable: true
+  groupby: true
+  is_active: true
+  is_dttm: false
+  python_date_format: null
+  type: String
+  verbose_name: section_subsection_name
+database_uuid: 21174b6c-4d40-4958-8161-d6c3cf5e77b6
+default_endpoint: null
+description: null
+extra: null
+fetch_values_predicate: null
+filter_select_enabled: false
+main_dttm_col: null
+metrics:
+- currency: null
+  d3format: null
+  description: null
+  expression: |-
+    countIf("section_subsection_problem_engagement" = 'At least one problem attempted' or "section_subsection_problem_engagement" = 'All problems attempted')
+  extra:
+    warning_markdown: ''
+  metric_name: attempted_at_least_one_problem
+  metric_type: null
+  verbose_name: Attempted At Least One Problem
+  warning_text: null
+- currency: null
+  d3format: null
+  description: null
+  expression: |-
+    countIf("section_subsection_problem_engagement" = 'All problems attempted')
+  extra:
+    warning_markdown: ''
+  metric_name: attempted_all_problems
+  metric_type: null
+  verbose_name: Attempted All Problems
+  warning_text: null
+- currency: null
+  d3format: null
+  description: null
+  expression: count(*)
+  extra:
+    warning_markdown: ''
+  metric_name: count
+  metric_type: null
+  verbose_name: Count
+  warning_text: null
+normalize_columns: true
+offset: 0
+params: null
+schema: 'reporting'
+sql: |
+  with
+      subsection_engagement as (
+          select
+              org,
+              course_key,
+              'subsection' as content_level,
+              actor_id,
+              subsection_block_id as block_id,
+              engagement_level as section_subsection_problem_engagement
+          from reporting.fact_subsection_problem_engagement
+          where 1 = 1 {% if filter_values("org") != [] %}
+      and org in {{ filter_values("org") | where_in }}
+  {% endif %}
+
+  {% if filter_values("course_name") != [] %}
+      and course_key in (
+          select course_key
+          from event_sink.dim_course_names
+          where course_name in {{ filter_values("course_name") | where_in }}
+      )
+  {% endif %}
+
+  {% if filter_values("tag") != [] %}
+      and course_key in (
+          select course_key
+          from
+              reporting.dim_most_recent_course_tags
+          where
+              tag in (select replaceAll(arrayJoin({{ filter_values("tag") }}), '- ', ''))
+      )
+  {% endif %}
+
+      ),
+      section_engagement as (
+          select
+              org,
+              course_key,
+              'section' as content_level,
+              actor_id,
+              section_block_id as block_id,
+              engagement_level as section_subsection_problem_engagement
+          from reporting.fact_section_problem_engagement
+          where 1 = 1 {% if filter_values("org") != [] %}
+      and org in {{ filter_values("org") | where_in }}
+  {% endif %}
+
+  {% if filter_values("course_name") != [] %}
+      and course_key in (
+          select course_key
+          from event_sink.dim_course_names
+          where course_name in {{ filter_values("course_name") | where_in }}
+      )
+  {% endif %}
+
+  {% if filter_values("tag") != [] %}
+      and course_key in (
+          select course_key
+          from
+              reporting.dim_most_recent_course_tags
+          where
+              tag in (select replaceAll(arrayJoin({{ filter_values("tag") }}), '- ', ''))
+      )
+  {% endif %}
+      ),
+      problem_engagement as (
+          select *
+          from subsection_engagement
+          union all
+          select *
+          from section_engagement
+      )
+  select
+      pe.org as org,
+      pe.course_key as course_key,
+      course_blocks.course_run as course_run,
+      course_blocks.display_name_with_location as section_subsection_name,
+      pe.content_level as content_level,
+      pe.actor_id as actor_id,
+      pe.section_subsection_problem_engagement as section_subsection_problem_engagement,
+      users.username as username,
+      users.name as name,
+      users.email as email
+  from problem_engagement pe
+  join
+      reporting.dim_course_blocks course_blocks
+      on (
+          pe.org = course_blocks.org
+          and pe.course_key = course_blocks.course_key
+          and pe.block_id = course_blocks.block_id
+      )
+  left outer join
+      reporting.dim_user_pii users
+      on (pe.actor_id like 'mailto:%' and SUBSTRING(pe.actor_id, 8) = users.email)
+      or pe.actor_id = toString(users.external_user_id)
+  where 1 = 1 {% if filter_values("org") != [] %}
+      and org in {{ filter_values("org") | where_in }}
+  {% endif %}
+
+  {% if filter_values("course_name") != [] %}
+      and course_key in (
+          select course_key
+          from event_sink.dim_course_names
+          where course_name in {{ filter_values("course_name") | where_in }}
+      )
+  {% endif %}
+
+  {% if filter_values("tag") != [] %}
+      and course_key in (
+          select course_key
+          from
+              reporting.dim_most_recent_course_tags
+          where
+              tag in (select replaceAll(arrayJoin({{ filter_values("tag") }}), '- ', ''))
+      )
+  {% endif %}
+table_name: problem_engagement
+template_params: {}
+uuid: 171c88e5-fd4b-4aab-b287-361fa6fa5415
+version: 1.0.0

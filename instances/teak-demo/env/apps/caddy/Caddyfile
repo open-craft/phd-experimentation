@@ -1,0 +1,316 @@
+# Global configuration
+{
+
+    
+    
+}
+
+# proxy directive snippet (with logging) to be used as follows:
+#
+#     import proxy "containername:port"
+(proxy) {
+    log {
+        output stdout
+        format filter {
+            wrap json
+            fields {
+                common_log delete
+                request>headers delete
+                resp_headers delete
+                tls delete
+            }
+        }
+    }
+
+    # This will compress requests that matches the default criteria set by Caddy.
+    # see https://caddyserver.com/docs/caddyfile/directives/encode
+    # for information about the defaults; i.e. how/when this will be applied.
+    encode gzip
+
+    reverse_proxy {args.0} {
+        header_up X-Forwarded-Port 80
+    }
+
+    
+}
+
+www.myopenedx.com{$default_site_port}, preview.www.myopenedx.com{$default_site_port} {
+    @favicon_matcher {
+        path_regexp ^/favicon.ico$
+    }
+    rewrite @favicon_matcher /theming/asset/images/favicon.ico
+
+    # Limit profile image upload size
+    handle_path /api/profile_images/*/*/upload {
+        request_body {
+            max_size 1MB
+        }
+    }
+
+    import proxy "lms:8000"
+
+    
+    @mfe_authn {
+        path /authn /authn/*
+    }
+    handle @mfe_authn {
+        redir /authn /authn/
+        reverse_proxy mfe:8002 {
+            header_up Host {host}
+        }
+    }
+    @mfe_account {
+        path /account /account/*
+    }
+    handle @mfe_account {
+        redir /account /account/
+        handle /account/settings {
+            reverse_proxy lms:8000
+        }
+        handle /account/password {
+            reverse_proxy lms:8000
+        }
+        handle /account/finish_auth {
+            reverse_proxy lms:8000
+        }
+        reverse_proxy mfe:8002 {
+            header_up Host {host}
+        }
+    }
+    @mfe_communications {
+        path /communications /communications/*
+    }
+    handle @mfe_communications {
+        redir /communications /communications/
+        reverse_proxy mfe:8002 {
+            header_up Host {host}
+        }
+    }
+    @mfe_discussions {
+        path /discussions /discussions/*
+    }
+    handle @mfe_discussions {
+        redir /discussions /discussions/
+        reverse_proxy mfe:8002 {
+            header_up Host {host}
+        }
+    }
+    @mfe_gradebook {
+        path /gradebook /gradebook/*
+    }
+    handle @mfe_gradebook {
+        redir /gradebook /gradebook/
+        reverse_proxy mfe:8002 {
+            header_up Host {host}
+        }
+    }
+    @mfe_learner-dashboard {
+        path /learner-dashboard /learner-dashboard/*
+    }
+    handle @mfe_learner-dashboard {
+        redir /learner-dashboard /learner-dashboard/
+        reverse_proxy mfe:8002 {
+            header_up Host {host}
+        }
+    }
+    @mfe_learning {
+        path /learning /learning/*
+    }
+    handle @mfe_learning {
+        redir /learning /learning/
+        reverse_proxy mfe:8002 {
+            header_up Host {host}
+        }
+    }
+    @mfe_ora-grading {
+        path /ora-grading /ora-grading/*
+    }
+    handle @mfe_ora-grading {
+        redir /ora-grading /ora-grading/
+        reverse_proxy mfe:8002 {
+            header_up Host {host}
+        }
+    }
+    @mfe_profile {
+        path /profile /profile/*
+    }
+    handle @mfe_profile {
+        redir /profile /profile/
+        reverse_proxy mfe:8002 {
+            header_up Host {host}
+        }
+    }
+
+
+    handle_path /* {
+        request_body {
+            max_size 4MB
+        }
+    }
+}
+
+studio.www.myopenedx.com{$default_site_port} {
+    @favicon_matcher {
+        path_regexp ^/favicon.ico$
+    }
+    rewrite @favicon_matcher /theming/asset/images/favicon.ico
+
+    import proxy "cms:8000"
+
+    
+    reverse_proxy /api/mfe_config/v1* lms:8000 {
+        header_up Host www.myopenedx.com
+    }
+    @authoring path_regexp authoring /course-authoring/(.*)
+    redir @authoring /authoring/{re.authoring.1} permanent
+    @mfe_authoring {
+        path /authoring /authoring/*
+    }
+    handle @mfe_authoring {
+        redir /authoring /authoring/
+        reverse_proxy mfe:8002 {
+            header_up Host {host}
+        }
+    }
+
+
+    handle_path /* {
+        request_body {
+            max_size 250MB
+        }
+    }
+}
+
+
+meilisearch.www.myopenedx.com{$default_site_port} {
+    import proxy "meilisearch:7700"
+}
+
+
+
+
+# Superset
+superset.www.myopenedx.com{$default_site_port} {
+    import proxy "superset:8088"
+}
+
+
+
+apps.www.myopenedx.com{$default_site_port} {
+    redir / http://www.myopenedx.com
+    request_body {
+        max_size 2MB
+    }
+    import proxy "mfe:8002"
+}
+{$default_site_port} {
+    @favicon_matcher {
+        path_regexp ^/favicon.ico$
+    }
+    rewrite @favicon_matcher /theming/asset/images/favicon.ico
+
+    
+@mfe_authn {
+    path /authn /authn/*
+}
+handle @mfe_authn {
+    redir /authn /authn/
+    reverse_proxy mfe:8002 {
+        header_up Host {host}
+    }
+}
+@mfe_account {
+    path /account /account/*
+}
+handle @mfe_account {
+    redir /account /account/
+    handle /account/settings {
+        reverse_proxy lms:8000
+    }
+    handle /account/password {
+        reverse_proxy lms:8000
+    }
+    handle /account/finish_auth {
+        reverse_proxy lms:8000
+    }
+    reverse_proxy mfe:8002 {
+        header_up Host {host}
+    }
+}
+@mfe_communications {
+    path /communications /communications/*
+}
+handle @mfe_communications {
+    redir /communications /communications/
+    reverse_proxy mfe:8002 {
+        header_up Host {host}
+    }
+}
+@mfe_discussions {
+    path /discussions /discussions/*
+}
+handle @mfe_discussions {
+    redir /discussions /discussions/
+    reverse_proxy mfe:8002 {
+        header_up Host {host}
+    }
+}
+@mfe_gradebook {
+    path /gradebook /gradebook/*
+}
+handle @mfe_gradebook {
+    redir /gradebook /gradebook/
+    reverse_proxy mfe:8002 {
+        header_up Host {host}
+    }
+}
+@mfe_learner-dashboard {
+    path /learner-dashboard /learner-dashboard/*
+}
+handle @mfe_learner-dashboard {
+    redir /learner-dashboard /learner-dashboard/
+    reverse_proxy mfe:8002 {
+        header_up Host {host}
+    }
+}
+@mfe_learning {
+    path /learning /learning/*
+}
+handle @mfe_learning {
+    redir /learning /learning/
+    reverse_proxy mfe:8002 {
+        header_up Host {host}
+    }
+}
+@mfe_ora-grading {
+    path /ora-grading /ora-grading/*
+}
+handle @mfe_ora-grading {
+    redir /ora-grading /ora-grading/
+    reverse_proxy mfe:8002 {
+        header_up Host {host}
+    }
+}
+@mfe_profile {
+    path /profile /profile/*
+}
+handle @mfe_profile {
+    redir /profile /profile/
+    reverse_proxy mfe:8002 {
+        header_up Host {host}
+    }
+}
+
+    # Limit profile image upload size
+    request_body /api/profile_images/*/*/upload {
+        max_size 1MB
+    }
+    request_body {
+        max_size 4MB
+    }
+    import proxy "lms:8000"
+
+    
+
+}
+

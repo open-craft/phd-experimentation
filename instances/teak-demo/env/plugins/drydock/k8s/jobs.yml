@@ -1,0 +1,1127 @@
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded,BeforeHookCreation
+    argocd.argoproj.io/sync-wave: 1
+  labels:
+    app.kubernetes.io/component: drydock-job
+    drydock.io/runner-service: drydock-lms-job-0
+    drydock.io/target-service: drydock-lms-job-0
+  name: drydock-lms-job-0
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - args:
+        - sh
+        - -e
+        - -c
+        - "# The initialization job contains various re-install operations needed\
+          \ to be done\n# on mounted directories (edx-platform, /mnt/*xblock, /mnt/<edx-ora,\
+          \ search, enterprise>)\n# 1. /mnt/*\n# Whenever xblocks or other installable\
+          \ packages are mounted, during the image build, they are copied over to\
+          \ container\n# and installed. This results in egg_info generation for the\
+          \ mounted directories. However, the egg_info is not carried\n# over to host.\
+          \ When the containers are launched, the host directories without egg_info\
+          \ are mounted on runtime\n# and disappear from pip list.\n#\n# 2. edx-platform\n\
+          # When a new local copy of edx-platform is bind-mounted, certain build\n\
+          # artifacts from the openedx image's edx-platform directory are lost.\n\
+          # We regenerate them here.\n\n\nfor mounted_dir in /mnt/*; do\n    if [\
+          \ -f $mounted_dir/setup.py ] && ! ls $mounted_dir/*.egg-info >/dev/null\
+          \ 2>&1 ; then\n        echo \"Unable to locate egg-info in $mounted_dir\"\
+          \n        pip install -e $mounted_dir\n    fi\ndone\n\nif [ -f /openedx/edx-platform/bindmount-canary\
+          \ ] ; then\n\t# If this file exists, then edx-platform has not been bind-mounted,\n\
+          \t# so no build artifacts need to be regenerated.\n\techo \"Using edx-platform\
+          \ from image (not bind-mount).\"\n\techo \"No extra setup is required.\"\
+          \n\texit\nfi\n\necho \"Performing additional setup for bind-mounted edx-platform.\"\
+          \nset -x # Echo out executed lines\n\n# Regenerate Open_edX.egg-info\npip\
+          \ install -e .\n\n# Regenerate node_modules\nnpm clean-install\n\n# Regenerate\
+          \ static assets.\nnpm run build-dev\n\nset -x\necho \"Done setting up bind-mounted\
+          \ edx-platform.\""
+        env:
+        - name: SERVICE_VARIANT
+          value: lms
+        - name: DJANGO_SETTINGS_MODULE
+          value: lms.envs.tutor.production
+        image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250805-pfxsgwaj
+        name: lms
+        volumeMounts:
+        - mountPath: /openedx/edx-platform/lms/envs/tutor/
+          name: settings-lms
+        - mountPath: /openedx/edx-platform/cms/envs/tutor/
+          name: settings-cms
+        - mountPath: /openedx/config
+          name: config
+      restartPolicy: Never
+      volumes:
+      - configMap:
+          name: openedx-settings-lms
+        name: settings-lms
+      - configMap:
+          name: openedx-settings-cms
+        name: settings-cms
+      - configMap:
+          name: openedx-config
+        name: config
+  ttlSecondsAfterFinished: 3600
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded,BeforeHookCreation
+    argocd.argoproj.io/sync-wave: 3
+  labels:
+    app.kubernetes.io/component: drydock-job
+    drydock.io/runner-service: drydock-mongodb-job-1
+    drydock.io/target-service: drydock-mongodb-job-1
+  name: drydock-mongodb-job-1
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - args:
+        - sh
+        - -e
+        - -c
+        - "echo \"Initialising MongoDB...\"\nmongosh --host mongodb --port 27017 \
+          \ admin <<EOF\n  \n  \n  exit\nEOF"
+        image: docker.io/mongo:7.0.7
+        name: mongodb
+      restartPolicy: Never
+  ttlSecondsAfterFinished: 3600
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded,BeforeHookCreation
+    argocd.argoproj.io/sync-wave: 5
+  labels:
+    app.kubernetes.io/component: drydock-job
+    drydock.io/runner-service: drydock-mysql-job-2
+    drydock.io/target-service: drydock-mysql-job-2
+  name: drydock-mysql-job-2
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - args:
+        - sh
+        - -e
+        - -c
+        - |-
+          echo "Initialising MySQL..."
+          mysql_connection_max_attempts=10
+          mysql_connection_attempt=0
+          until mysql -u root --password="usMgJmj1" --host "mysql" --port 3306 -e 'exit'
+          do
+              mysql_connection_attempt=$(expr $mysql_connection_attempt + 1)
+              echo "    [$mysql_connection_attempt/$mysql_connection_max_attempts] Waiting for MySQL service (this may take a while)..."
+              if [ $mysql_connection_attempt -eq $mysql_connection_max_attempts ]
+              then
+                echo "MySQL initialisation error" 1>&2
+                exit 1
+              fi
+              sleep 10
+          done
+          echo "MySQL is up and running"
+
+          # edx-platform database
+          mysql -u root --password="usMgJmj1" --host "mysql" --port 3306 -e "CREATE DATABASE IF NOT EXISTS openedx;"
+          mysql -u root --password="usMgJmj1" --host "mysql" --port 3306 -e "CREATE USER IF NOT EXISTS 'openedx';"
+          mysql -u root --password="usMgJmj1" --host "mysql" --port 3306 -e "ALTER USER 'openedx'@'%' IDENTIFIED BY 'bDyqv8dq';"
+          mysql -u root --password="usMgJmj1" --host "mysql" --port 3306 -e "GRANT ALL ON openedx.* TO 'openedx'@'%';"
+        image: docker.io/mysql:8.4.0
+        name: mysql
+      restartPolicy: Never
+  ttlSecondsAfterFinished: 3600
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded,BeforeHookCreation
+    argocd.argoproj.io/sync-wave: 7
+  labels:
+    app.kubernetes.io/component: drydock-job
+    drydock.io/runner-service: drydock-lms-job-3
+    drydock.io/target-service: drydock-lms-job-3
+  name: drydock-lms-job-3
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - args:
+        - sh
+        - -e
+        - -c
+        - |-
+          # Get or create Meilisearch API key
+          python -c "
+          import meilisearch
+          client = meilisearch.Client('http://meilisearch:7700', 'OWGGkvUclXbWTQMqbWpMQf9j')
+          try:
+              client.get_key('e21734d7-5234-410f-baac-5a5ac3b2a1cc')
+              print('Key already exists')
+          except meilisearch.errors.MeilisearchApiError:
+              print('Key does not exist: creating...')
+              client.create_key({
+                  'name': 'Open edX backend API key',
+                  'uid': 'e21734d7-5234-410f-baac-5a5ac3b2a1cc',
+                  'actions': ['*'],
+                  'indexes': ['tutor_*'],
+                  'expiresAt': None,
+                  'description': 'Use it for backend API calls -- Created by Tutor',
+              })
+          "
+        env:
+        - name: SERVICE_VARIANT
+          value: lms
+        - name: DJANGO_SETTINGS_MODULE
+          value: lms.envs.tutor.production
+        image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250805-pfxsgwaj
+        name: lms
+        volumeMounts:
+        - mountPath: /openedx/edx-platform/lms/envs/tutor/
+          name: settings-lms
+        - mountPath: /openedx/edx-platform/cms/envs/tutor/
+          name: settings-cms
+        - mountPath: /openedx/config
+          name: config
+      restartPolicy: Never
+      volumes:
+      - configMap:
+          name: openedx-settings-lms
+        name: settings-lms
+      - configMap:
+          name: openedx-settings-cms
+        name: settings-cms
+      - configMap:
+          name: openedx-config
+        name: config
+  ttlSecondsAfterFinished: 3600
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded,BeforeHookCreation
+    argocd.argoproj.io/sync-wave: 9
+  labels:
+    app.kubernetes.io/component: drydock-job
+    drydock.io/runner-service: drydock-lms-job-4
+    drydock.io/target-service: drydock-lms-job-4
+  name: drydock-lms-job-4
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - args:
+        - sh
+        - -e
+        - -c
+        - |-
+          dockerize -wait tcp://mysql:3306 -timeout 20s
+          dockerize -wait tcp://mongodb:27017 -timeout 20s
+
+          echo "Loading settings $DJANGO_SETTINGS_MODULE"
+
+          ./manage.py lms migrate
+
+          # Create meilisearch indexes
+          ./manage.py lms shell -c "import search.meilisearch; search.meilisearch.create_indexes()"
+
+          # Create oauth2 apps for CMS SSO
+          # https://github.com/openedx/edx-platform/blob/master/docs/guides/studio_oauth.rst
+          ./manage.py lms manage_user cms cms@openedx --unusable-password
+          ./manage.py lms create_dot_application \
+            --grant-type authorization-code \
+            --redirect-uris "http://studio.www.myopenedx.com/complete/edx-oauth2/" \
+            --client-id cms-sso \
+            --client-secret 2ZctDNexJc76sE0OplutuvlY \
+            --scopes user_id \
+            --skip-authorization \
+            --update cms-sso cms
+          ./manage.py lms create_dot_application \
+            --grant-type authorization-code \
+            --redirect-uris "http://studio.www.myopenedx.com:8001/complete/edx-oauth2/" \
+            --client-id cms-sso-dev \
+            --client-secret 2ZctDNexJc76sE0OplutuvlY \
+            --scopes user_id \
+            --skip-authorization \
+            --update cms-sso-dev cms
+
+
+          # Fix incorrect uploaded file path
+          if [ -d /openedx/data/uploads/ ]; then
+            if [ -n "$(ls -A /openedx/data/uploads/)" ]; then
+              echo "Migrating LMS uploaded files to shared directory"
+              mv /openedx/data/uploads/* /openedx/media/
+              rm -rf /openedx/data/uploads/
+            fi
+          fi
+
+          # Create waffle switches to enable some features, if they have not been explicitly defined before
+          # Completion tracking: add green ticks to every completed unit
+          (./manage.py lms waffle_switch --list | grep completion.enable_completion_tracking) || ./manage.py lms waffle_switch --create completion.enable_completion_tracking on
+        env:
+        - name: SERVICE_VARIANT
+          value: lms
+        - name: DJANGO_SETTINGS_MODULE
+          value: lms.envs.tutor.production
+        image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250805-pfxsgwaj
+        name: lms
+        volumeMounts:
+        - mountPath: /openedx/edx-platform/lms/envs/tutor/
+          name: settings-lms
+        - mountPath: /openedx/edx-platform/cms/envs/tutor/
+          name: settings-cms
+        - mountPath: /openedx/config
+          name: config
+      restartPolicy: Never
+      volumes:
+      - configMap:
+          name: openedx-settings-lms
+        name: settings-lms
+      - configMap:
+          name: openedx-settings-cms
+        name: settings-cms
+      - configMap:
+          name: openedx-config
+        name: config
+  ttlSecondsAfterFinished: 3600
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded,BeforeHookCreation
+    argocd.argoproj.io/sync-wave: 11
+  labels:
+    app.kubernetes.io/component: drydock-job
+    drydock.io/runner-service: drydock-cms-job-5
+    drydock.io/target-service: drydock-cms-job-5
+  name: drydock-cms-job-5
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - args:
+        - sh
+        - -e
+        - -c
+        - |-
+          dockerize -wait tcp://mysql:3306 -timeout 20s
+
+          echo "Loading settings $DJANGO_SETTINGS_MODULE"
+
+          ./manage.py cms migrate
+
+          # Fix incorrect uploaded file path
+          if [ -d /openedx/data/uploads/ ]; then
+            if [ -n "$(ls -A /openedx/data/uploads/)" ]; then
+              echo "Migrating CMS uploaded files to shared directory"
+              mv /openedx/data/uploads/* /openedx/media/
+              rm -rf /openedx/data/uploads/
+            fi
+          fi
+
+          # Create the index for studio and courseware content. Because we specify --init,
+          # this will not populate the index (potentially slow) nor replace any existing
+          # index (resulting in broken features until it is complete). If either of those
+          # are necessary, it will print instructions on what command to run to do so.
+          ./manage.py cms reindex_studio --experimental --init
+          # Create the courseware content index
+          ./manage.py cms reindex_course --active
+        env:
+        - name: SERVICE_VARIANT
+          value: cms
+        - name: DJANGO_SETTINGS_MODULE
+          value: cms.envs.tutor.production
+        image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250805-pfxsgwaj
+        name: cms
+        volumeMounts:
+        - mountPath: /openedx/edx-platform/lms/envs/tutor/
+          name: settings-lms
+        - mountPath: /openedx/edx-platform/cms/envs/tutor/
+          name: settings-cms
+        - mountPath: /openedx/config
+          name: config
+      restartPolicy: Never
+      volumes:
+      - configMap:
+          name: openedx-settings-lms
+        name: settings-lms
+      - configMap:
+          name: openedx-settings-cms
+        name: settings-cms
+      - configMap:
+          name: openedx-config
+        name: config
+  ttlSecondsAfterFinished: 3600
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded,BeforeHookCreation
+    argocd.argoproj.io/sync-wave: 13
+  labels:
+    app.kubernetes.io/component: drydock-job
+    drydock.io/runner-service: drydock-lms-job-6
+    drydock.io/target-service: drydock-lms-job-6
+  name: drydock-lms-job-6
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - args:
+        - sh
+        - -e
+        - -c
+        - |2-
+
+          (./manage.py lms waffle_flag --list | grep discussions.enable_forum_v2) || ./manage.py lms waffle_flag --create --everyone discussions.enable_forum_v2
+
+          # Switch to MySQL backend, unless a global waffle flag was already created.
+          # This allows user to stick to the MongoDb backend by creating a flag with:
+          #
+          #     ./manage.py lms waffle_flag --create --deactivate forum_v2.enable_mysql_backend
+          #
+          ./manage.py lms shell -c "
+          from waffle.models import Flag
+          flag, created = Flag.objects.get_or_create(name='forum_v2.enable_mysql_backend')
+          if created:
+              print('Configuring MySQL backend for forum data storage')
+              flag.everyone = True
+              flag.save()
+          elif not flag.everyone:
+              print('⚠️ You should migrate your forum data to MySQL: https://github.com/overhangio/tutor-forum/#installation')
+          else:
+              print('MySQL backend already configured for forum data storage')"
+
+          # Initialize indices
+          ./manage.py lms initialize_forum_indices
+
+          # Create Mongodb indexes
+          ./manage.py lms forum_create_mongodb_indexes
+        env:
+        - name: SERVICE_VARIANT
+          value: lms
+        - name: DJANGO_SETTINGS_MODULE
+          value: lms.envs.tutor.production
+        image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250805-pfxsgwaj
+        name: lms
+        volumeMounts:
+        - mountPath: /openedx/edx-platform/lms/envs/tutor/
+          name: settings-lms
+        - mountPath: /openedx/edx-platform/cms/envs/tutor/
+          name: settings-cms
+        - mountPath: /openedx/config
+          name: config
+      restartPolicy: Never
+      volumes:
+      - configMap:
+          name: openedx-settings-lms
+        name: settings-lms
+      - configMap:
+          name: openedx-settings-cms
+        name: settings-cms
+      - configMap:
+          name: openedx-config
+        name: config
+  ttlSecondsAfterFinished: 3600
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded,BeforeHookCreation
+    argocd.argoproj.io/sync-wave: 15
+  labels:
+    app.kubernetes.io/component: drydock-job
+    drydock.io/runner-service: drydock-lms-job-7
+    drydock.io/target-service: drydock-lms-job-7
+  name: drydock-lms-job-7
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - args:
+        - sh
+        - -e
+        - -c
+        - |
+          # MFE-specific tasks
+          ./manage.py lms waffle_flag --list > /tmp/lms_waffle_flags.txt
+
+
+          ./manage.py lms populate_retirement_states
+
+
+
+
+          grep learner_home_mfe.enabled /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone learner_home_mfe.enabled
+
+
+
+          grep course_home.course_home_mfe_progress_tab /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone course_home.course_home_mfe_progress_tab
+          grep courseware.enable_navigation_sidebar /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone courseware.enable_navigation_sidebar
+          grep courseware.always_open_auxiliary_sidebar /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --deactivate courseware.always_open_auxiliary_sidebar
+
+
+
+          grep contentstore.new_studio_mfe.use_new_advanced_settings_page /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_advanced_settings_page
+          grep contentstore.new_studio_mfe.use_new_certificates_page /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_certificates_page
+          grep contentstore.new_studio_mfe.use_new_course_outline_page /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_course_outline_page
+          grep contentstore.new_studio_mfe.use_new_course_team_page /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_course_team_page
+          grep contentstore.new_studio_mfe.use_new_custom_pages /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_custom_pages
+          grep contentstore.new_studio_mfe.use_new_export_page /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_export_page
+          grep contentstore.new_studio_mfe.use_new_files_uploads_page /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_files_uploads_page
+          grep contentstore.new_studio_mfe.use_new_grading_page /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_grading_page
+          grep contentstore.new_studio_mfe.use_new_group_configurations_page /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_group_configurations_page
+          grep contentstore.new_studio_mfe.use_new_import_page /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_import_page
+          grep contentstore.new_studio_mfe.use_new_schedule_details_page /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_schedule_details_page
+          grep contentstore.new_studio_mfe.use_new_textbooks_page /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_textbooks_page
+          grep contentstore.new_studio_mfe.use_new_unit_page /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_unit_page
+          grep contentstore.new_studio_mfe.use_new_updates_page /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_updates_page
+          grep discussions.pages_and_resources_mfe /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone discussions.pages_and_resources_mfe
+          grep new_core_editors.use_new_problem_editor /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone new_core_editors.use_new_problem_editor
+          grep new_core_editors.use_new_text_editor /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone new_core_editors.use_new_text_editor
+          grep new_core_editors.use_new_video_editor /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone new_core_editors.use_new_video_editor
+          grep new_studio_mfe.use_new_home_page /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone new_studio_mfe.use_new_home_page
+          grep new_studio_mfe.use_tagging_taxonomy_list_page /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone new_studio_mfe.use_tagging_taxonomy_list_page
+
+
+
+          grep discussions.enable_discussions_mfe  /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone discussions.enable_discussions_mfe
+          grep discussions.enable_learners_tab_in_discussions_mfe  /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone discussions.enable_learners_tab_in_discussions_mfe
+          grep discussions.enable_moderation_reason_codes  /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone discussions.enable_moderation_reason_codes
+          grep discussions.enable_reported_content_email_notifications  /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone discussions.enable_reported_content_email_notifications
+          grep discussions.enable_learners_stats  /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone discussions.enable_learners_stats
+          grep discussions.enable_new_structure_discussions  /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone discussions.enable_new_structure_discussions
+
+
+
+          grep openresponseassessment.enhanced_staff_grader /tmp/lms_waffle_flags.txt || ./manage.py lms waffle_flag --create --everyone openresponseassessment.enhanced_staff_grader
+        env:
+        - name: SERVICE_VARIANT
+          value: lms
+        - name: DJANGO_SETTINGS_MODULE
+          value: lms.envs.tutor.production
+        image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250805-pfxsgwaj
+        name: lms
+        volumeMounts:
+        - mountPath: /openedx/edx-platform/lms/envs/tutor/
+          name: settings-lms
+        - mountPath: /openedx/edx-platform/cms/envs/tutor/
+          name: settings-cms
+        - mountPath: /openedx/config
+          name: config
+      restartPolicy: Never
+      volumes:
+      - configMap:
+          name: openedx-settings-lms
+        name: settings-lms
+      - configMap:
+          name: openedx-settings-cms
+        name: settings-cms
+      - configMap:
+          name: openedx-config
+        name: config
+  ttlSecondsAfterFinished: 3600
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded,BeforeHookCreation
+    argocd.argoproj.io/sync-wave: 17
+  labels:
+    app.kubernetes.io/component: drydock-job
+    drydock.io/runner-service: drydock-mysql-job-8
+    drydock.io/target-service: drydock-mysql-job-8
+  name: drydock-mysql-job-8
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - args:
+        - sh
+        - -e
+        - -c
+        - |-
+          echo "Initialising MySQL..."
+          mysql_connection_max_attempts=10
+          mysql_connection_attempt=0
+          until mysql -u root --password="usMgJmj1" --host "mysql" --port 3306 -e 'exit'
+          do
+              mysql_connection_attempt=$(expr $mysql_connection_attempt + 1)
+              echo "    [$mysql_connection_attempt/$mysql_connection_max_attempts] Waiting for MySQL service (this may take a while)..."
+              if [ $mysql_connection_attempt -eq $mysql_connection_max_attempts ]
+              then
+                echo "MySQL initialisation error" 1>&2
+                exit 1
+              fi
+              sleep 10
+          done
+          echo "MySQL is up and running"
+
+          # Superset MySQL database, by default points to the same host as edx-platform
+          mysql -u root --password="usMgJmj1" --host "mysql" --port 3306 -e "CREATE DATABASE IF NOT EXISTS superset /*!40100 DEFAULT CHARACTER SET utf8mb4 */;"
+
+          # Superset system user
+          mysql -u root --password="usMgJmj1" --host "mysql" --port 3306 -e "CREATE USER IF NOT EXISTS 'superset';"
+          mysql -u root --password="usMgJmj1" --host "mysql" --port 3306 -e "ALTER USER 'superset'@'%' IDENTIFIED BY '83VDXRV5RAQJ7bk4Sg41Mz7q';"
+          mysql -u root --password="usMgJmj1" --host "mysql" --port 3306 -e "GRANT ALL ON superset.* TO 'superset'@'%';"
+        image: docker.io/mysql:8.4.0
+        name: mysql
+      restartPolicy: Never
+  ttlSecondsAfterFinished: 3600
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded,BeforeHookCreation
+    argocd.argoproj.io/sync-wave: 19
+  labels:
+    app.kubernetes.io/component: drydock-job
+    drydock.io/runner-service: drydock-clickhouse-job-9
+    drydock.io/target-service: drydock-clickhouse-job-9
+  name: drydock-clickhouse-job-9
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - args:
+        - sh
+        - -e
+        - -c
+        - |-
+          echo "Initialising Clickhouse..."
+          ch_connection_max_attempts=10
+          ch_connection_attempt=0
+          until clickhouse client --user ch_admin --password="WCCxAm9AYpkR2j2NjNDJK6c0" --host "clickhouse"  --port 9000 -q 'exit'
+          do
+              ch_connection_attempt=$(expr $ch_connection_attempt + 1)
+              echo "    [$ch_connection_attempt/$ch_connection_max_attempts] Waiting for Clickhouse service (this may take a while)..."
+              if [ $ch_connection_attempt -eq $ch_connection_max_attempts ]
+              then
+                echo "Clickhouse initialisation error" 1>&2
+                exit 1
+              fi
+              sleep 10
+          done
+          echo "Clickhouse is up and running"
+
+          echo "Running schema creation scripts..."
+
+
+
+
+
+          clickhouse client --user "ch_admin" --password="WCCxAm9AYpkR2j2NjNDJK6c0" --host "clickhouse"  --port 9000 --multiquery <<'EOF'
+          -- Create databases
+          CREATE DATABASE IF NOT EXISTS xapi ;
+          CREATE DATABASE IF NOT EXISTS event_sink ;
+          CREATE DATABASE IF NOT EXISTS openedx ;
+          CREATE DATABASE IF NOT EXISTS reporting ;
+
+          -- Create various non-admin users reporting users
+          CREATE USER IF NOT EXISTS ch_lrs  IDENTIFIED WITH sha256_password BY 'JqPgxRIJ5fb9TLUOLLIMHQBj';
+          CREATE USER IF NOT EXISTS ch_vector  IDENTIFIED WITH sha256_password BY 'APbsOCkOGqEmru1RKhaupMFH';
+          CREATE USER IF NOT EXISTS ch_report  IDENTIFIED WITH sha256_password BY 'qVov3Z6LaIdsN0HIUu4JCWfg';
+          CREATE USER IF NOT EXISTS ch_cms  IDENTIFIED WITH sha256_password BY 'Zyw4LX5MdvEmenXP1hTm2jye';
+
+          -- Update user passwords if they do exist
+          ALTER USER ch_lrs  IDENTIFIED WITH sha256_password BY 'JqPgxRIJ5fb9TLUOLLIMHQBj';
+          ALTER USER ch_vector  IDENTIFIED WITH sha256_password BY 'APbsOCkOGqEmru1RKhaupMFH';
+          ALTER USER ch_report  IDENTIFIED WITH sha256_password BY 'qVov3Z6LaIdsN0HIUu4JCWfg';
+          ALTER USER ch_cms  IDENTIFIED WITH sha256_password BY 'Zyw4LX5MdvEmenXP1hTm2jye';
+
+          -- Grant permissions to the users
+          GRANT  INSERT, SELECT ON xapi.* TO 'ch_lrs';
+          GRANT  SELECT ON xapi.* TO 'ch_report';
+
+          GRANT  INSERT, SELECT ON event_sink.* TO 'ch_cms';
+          GRANT  SELECT ON event_sink.* TO 'ch_report';
+
+          GRANT  CREATE TABLE, DROP TABLE, CREATE VIEW, DROP VIEW, SELECT, INSERT, UPDATE, DELETE, dictGet ON reporting.* TO 'ch_report';
+
+          GRANT  SELECT, DROP TABLE, DROP VIEW ON xapi.* TO 'ch_report';
+          GRANT  INSERT, SELECT, DELETE ON event_sink.* TO 'ch_cms';
+          GRANT  SELECT, dictGet ON event_sink.* TO 'ch_report';
+          GRANT  INSERT, SELECT ON openedx.* TO 'ch_vector';
+          GRANT  SELECT ON openedx.* TO 'ch_report';
+          GRANT  SELECT ON system.asynchronous_metrics TO 'ch_report';
+          GRANT  SELECT ON system.disks TO 'ch_report';
+          GRANT  SELECT ON system.events TO 'ch_report';
+          GRANT  SELECT ON system.metrics TO 'ch_report';
+          GRANT  SELECT ON system.replication_queue TO 'ch_report';
+          GRANT  SELECT ON system.query_log TO 'ch_report';
+
+          -- Patch from clickhouse-extra-sql follows...
+
+
+          EOF
+        env:
+        - name: CLICKHOUSE_DB
+          value: xapi
+        - name: CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT
+          value: '1'
+        - name: CLICKHOUSE_PASSWORD
+          value: WCCxAm9AYpkR2j2NjNDJK6c0
+        - name: CLICKHOUSE_USER
+          value: ch_admin
+        image: clickhouse/clickhouse-server:25.3
+        name: clickhouse
+      restartPolicy: Never
+  ttlSecondsAfterFinished: 3600
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded,BeforeHookCreation
+    argocd.argoproj.io/sync-wave: 21
+  labels:
+    app.kubernetes.io/component: drydock-job
+    drydock.io/runner-service: drydock-aspects-job-10
+    drydock.io/target-service: drydock-aspects-job-10
+  name: drydock-aspects-job-10
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - args:
+        - sh
+        - -e
+        - -c
+        - |-
+          #!/usr/bin/env bash
+
+          set -e
+
+          bash /app/aspects/scripts/alembic.sh upgrade head
+
+          bash /app/aspects/scripts/dbt.sh True run
+        env:
+        - name: VENV_DIR
+          value: /opt/venv
+        - name: ASPECTS_EVENT_SINK_DATABASE
+          value: event_sink
+        - name: ASPECTS_XAPI_DATABASE
+          value: xapi
+        - name: CLICKHOUSE_CLUSTER_NAME
+          value: ''
+        - name: DBT_STATE
+          value: /app/aspects-dbt/state
+        - name: ASPECTS_DATA_TTL_EXPRESSION
+          value: toDateTime(emission_time) + INTERVAL 1 YEAR
+        - name: DBT_PROFILE_TARGET_DATABASE
+          value: reporting
+        - name: DBT_PROFILES_DIR
+          value: /app/aspects/dbt/
+        - name: DBT_BRANCH
+          value: v4.0.3
+        - name: DBT_REPOSITORY
+          value: https://github.com/openedx/aspects-dbt
+        - name: DBT_SSH_KEY
+          value: ''
+        image: edunext/aspects:2.3.1
+        name: aspects
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsUser: 0
+        volumeMounts:
+        - mountPath: /app
+          name: app
+        - mountPath: /app/aspects/dbt
+          name: dbt
+        - mountPath: /app/aspects/scripts
+          name: scripts
+        - mountPath: /app/aspects/migrations/
+          name: migrations
+        - mountPath: /app/aspects/migrations/alembic
+          name: alembic
+        - mountPath: /app/aspects/migrations/alembic/versions
+          name: versions
+      restartPolicy: Never
+      volumes:
+      - configMap:
+          defaultMode: 511
+          name: aspects-scripts
+        name: scripts
+      - configMap:
+          name: aspects-dbt
+        name: dbt
+      - emptyDir: {}
+        name: app
+      - configMap:
+          name: aspects-migrations
+        name: migrations
+      - configMap:
+          name: aspects-migrations-alembic
+        name: alembic
+      - configMap:
+          name: aspects-migrations-alembic-versions
+        name: versions
+  ttlSecondsAfterFinished: 3600
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded,BeforeHookCreation
+    argocd.argoproj.io/sync-wave: 23
+  labels:
+    app.kubernetes.io/component: drydock-job
+    drydock.io/runner-service: drydock-superset-job-11
+    drydock.io/target-service: drydock-superset-job-11
+  name: drydock-superset-job-11
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - args:
+        - sh
+        - -e
+        - -c
+        - |-
+          #!/usr/bin/env bash
+          #
+          # Licensed to the Apache Software Foundation (ASF) under one or more
+          # contributor license agreements.  See the NOTICE file distributed with
+          # this work for additional information regarding copyright ownership.
+          # The ASF licenses this file to You under the Apache License, Version 2.0
+          # (the "License"); you may not use this file except in compliance with
+          # the License.  You may obtain a copy of the License at
+          #
+          #    http://www.apache.org/licenses/LICENSE-2.0
+          #
+          # Unless required by applicable law or agreed to in writing, software
+          # distributed under the License is distributed on an "AS IS" BASIS,
+          # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+          # See the License for the specific language governing permissions and
+          # limitations under the License.
+          #
+
+          # Modified from original:
+          #
+          # https://github.com/apache/superset/blob/969c963/docker/docker-init.sh
+
+          set -e
+
+          STEP_CNT=5
+
+          echo_step() {
+          cat <<EOF
+
+          ######################################################################
+
+
+          Init Step ${1}/${STEP_CNT} [${2}] -- ${3}
+
+
+          ######################################################################
+
+          EOF
+          }
+          # Initialize the database
+          echo_step "1" "Starting" "Applying DB migrations"
+          superset db upgrade
+          superset init
+          echo_step "1" "Complete" "Applying DB migrations"
+
+          # Create an admin user
+          echo_step "2" "Starting" "Setting up admin user"
+          superset fab create-admin \
+            --username "3XTtIwHQnvnU" \
+            --password "xgBM3ZekR8sv0pGymXTOh93w" \
+            --firstname Superset \
+            --lastname Admin \
+            --email "admin@openedx.org"
+
+          superset fab create-admin \
+            --username "Hlezksj7t2Nz" \
+            --password "AdYCltNt8FqSvEm4XX9S8BFt" \
+            --firstname LMS \
+            --lastname Admin \
+            --email "superset/lms-admin@aspects.invalid"
+
+          # Update the password of the Admin user
+          # (in case it changed since the user was created)
+          superset fab reset-password \
+            --username "3XTtIwHQnvnU" \
+            --password "xgBM3ZekR8sv0pGymXTOh93w"
+          echo_step "2" "Complete" "Setting up admin user"
+
+          # Create default roles and permissions
+          echo_step "3" "Starting" "Setting up roles and perms"
+          superset fab import-roles -p /app/security/roles.json
+          echo_step "3" "Complete" "Setting up roles and perms"
+
+          echo_step "4" "Starting" "Importing assets"
+
+          bash /app/scripts/import-assets.sh
+
+          echo_step "4" "Complete" "Importing assets"
+        env:
+        - name: DATABASE_DIALECT
+          value: mysql
+        - name: DATABASE_HOST
+          value: mysql
+        - name: DATABASE_PORT
+          value: '3306'
+        - name: DATABASE_DB
+          value: superset
+        - name: DATABASE_PASSWORD
+          value: 83VDXRV5RAQJ7bk4Sg41Mz7q
+        - name: DATABASE_USER
+          value: superset
+        - name: OAUTH2_CLIENT_ID
+          value: 9i7ptkJ4MCbSQV9r
+        - name: OAUTH2_CLIENT_SECRET
+          value: 4FYoh0RsE3PA9qvT
+        - name: SECRET_KEY
+          value: 6UDIsoIHFGwIqonQsp6Bl5ZC
+        - name: PYTHONPATH
+          value: /app/pythonpath:/app/docker/pythonpath_dev
+        - name: REDIS_HOST
+          value: redis
+        - name: REDIS_PORT
+          value: '6379'
+        - name: REDIS_PASSWORD
+          value: ''
+        - name: FLASK_DEBUG
+          value: '0'
+        - name: SUPERSET_ENV
+          value: production
+        - name: SUPERSET_HOST
+          value: superset.www.myopenedx.com
+        - name: SUPERSET_PORT
+          value: '8088'
+        - name: OAUTH2_ACCESS_TOKEN_PATH
+          value: /oauth2/access_token/
+        - name: OAUTH2_AUTHORIZE_PATH
+          value: /oauth2/authorize/
+        - name: OPENEDX_COURSES_LIST_PATH
+          value: /api/courses/v1/courses/?permissions={permission}&username={username}
+        - name: OPENEDX_LMS_ROOT_URL
+          value: http://www.myopenedx.com
+        image: edunext/aspects-superset:2.3.1
+        name: superset
+        volumeMounts:
+        - mountPath: /app/docker
+          name: docker
+        - mountPath: /app/pythonpath
+          name: pythonpath
+        - mountPath: /app/pythonpath/openedx
+          name: pythonpath-openedx
+        - mountPath: /app/security
+          name: security
+        - mountPath: /app/assets
+          name: assets
+        - mountPath: /app/scripts
+          name: scripts
+      restartPolicy: Never
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        runAsGroup: 1000
+        runAsUser: 1000
+      volumes:
+      - configMap:
+          name: superset-docker
+        name: docker
+      - configMap:
+          name: superset-pythonpath
+        name: pythonpath
+      - configMap:
+          name: superset-pythonpath-openedx
+        name: pythonpath-openedx
+      - configMap:
+          name: superset-security
+        name: security
+      - emptyDir: {}
+        name: assets
+      - configMap:
+          name: superset-scripts
+        name: scripts
+  ttlSecondsAfterFinished: 3600
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded,BeforeHookCreation
+    argocd.argoproj.io/sync-wave: 25
+  labels:
+    app.kubernetes.io/component: drydock-job
+    drydock.io/runner-service: drydock-mysql-job-12
+    drydock.io/target-service: drydock-mysql-job-12
+  name: drydock-mysql-job-12
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - args:
+        - sh
+        - -e
+        - -c
+        - |-
+          echo "MySQL init after Superset migrations..."
+
+          # Grant SELECT access to a subset of superset metadata tables
+          for TABLE in ab_user dashboards logs slices tables; do
+              mysql -u root --password="usMgJmj1" --host "mysql" --port 3306 -e "GRANT SELECT ON superset.${TABLE} TO 'superset'@'%';"
+          done
+        image: docker.io/mysql:8.4.0
+        name: mysql
+      restartPolicy: Never
+  ttlSecondsAfterFinished: 3600
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded,BeforeHookCreation
+    argocd.argoproj.io/sync-wave: 27
+  labels:
+    app.kubernetes.io/component: drydock-job
+    drydock.io/runner-service: drydock-lms-job-13
+    drydock.io/target-service: drydock-lms-job-13
+  name: drydock-lms-job-13
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - args:
+        - sh
+        - -e
+        - -c
+        - |
+          # Create a DOT applicaton so Superset can use Open edX authenticatioon
+          ./manage.py lms manage_user superset superset@apache
+          ./manage.py lms create_dot_application \
+              --grant-type authorization-code \
+              --redirect-uris "http://superset.www.myopenedx.com/oauth-authorized/openedxsso" \
+              --client-id 9i7ptkJ4MCbSQV9r \
+              --client-secret 4FYoh0RsE3PA9qvT \
+              --scopes "user_id" \
+              superset-sso superset
+          ./manage.py lms create_dot_application \
+              --grant-type authorization-code \
+              --redirect-uris "http://superset.www.myopenedx.com:8088/oauth-authorized/openedxsso" \
+              --client-id JNdZZWZF4alnbwUY \
+              --client-secret 4FYoh0RsE3PA9qvT \
+              --scopes "user_id" \
+              superset-sso-dev superset
+
+
+          cat > /tmp/erb_config.json <<EOF
+          {
+            "model": "event_routing_backends.RouterConfiguration",
+            "data":
+            [
+              {
+                "enabled": true,
+                "backend_name": "xAPI",
+              "route_url": "http://ralph:8100/xAPI/",
+                "auth_scheme": "Basic",
+                "username": "lms",
+                "password": "jopkdmhvrddmgsgdotcsvqqengdqtvfvxwsk"
+              }
+            ]
+          }
+          EOF
+
+          ./manage.py lms manage_user tutor-contrib-aspects aspects@axim --unusable-password
+          ./manage.py lms populate_model -f /tmp/erb_config.json -u tutor-contrib-aspects
+        env:
+        - name: SERVICE_VARIANT
+          value: lms
+        - name: DJANGO_SETTINGS_MODULE
+          value: lms.envs.tutor.production
+        image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250805-pfxsgwaj
+        name: lms
+        volumeMounts:
+        - mountPath: /openedx/edx-platform/lms/envs/tutor/
+          name: settings-lms
+        - mountPath: /openedx/edx-platform/cms/envs/tutor/
+          name: settings-cms
+        - mountPath: /openedx/config
+          name: config
+      restartPolicy: Never
+      volumes:
+      - configMap:
+          name: openedx-settings-lms
+        name: settings-lms
+      - configMap:
+          name: openedx-settings-cms
+        name: settings-cms
+      - configMap:
+          name: openedx-config
+        name: config
+  ttlSecondsAfterFinished: 3600
+
+---
+
