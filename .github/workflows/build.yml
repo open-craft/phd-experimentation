@@ -125,14 +125,11 @@ jobs:
       - name: Update Tutor configuration in remote repository
         working-directory: ${{ github.workspace }}/strains
         env:
-          STRAIN_PATH: strains/instances/${{ inputs.INSTANCE_NAME }}
-          CONFIG_FILE: instances/${{ inputs.INSTANCE_NAME }}/config.yml
+          STRAIN_PATH: instances/${{ inputs.INSTANCE_NAME }}
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git restore $CONFIG_FILE
-          tree `pwd`
-          git status
+          git restore $STRAIN_PATH/config.yml
           git add $STRAIN_PATH/env
           if git diff --cached --quiet; then
             echo "No changes to commit"
