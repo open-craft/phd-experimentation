@@ -1,12 +1,12 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: kubernetes.default.svc
+  name: teak-demo.kubernetes.default.svc
   namespace: argocd
 spec:
   destination:
-    name: teak-demo
-    namespace: kubernetes.default.svc
+    server: https://kubernetes.default.svc
+    namespace: teak-demo
   project: opencraft
   source:
     path: instances/teak-demo/env
