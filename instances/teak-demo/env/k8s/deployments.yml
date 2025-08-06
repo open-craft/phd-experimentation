@@ -297,7 +297,7 @@ spec:
           image: docker.io/getmeili/meilisearch:v1.8.4
           env:
             - name: MEILI_MASTER_KEY
-              value: "oRaIEBfysXN3PY5Lr9K5xQQ8"
+              value: "mZWtrnU5q8m1n7vKTwkyeDCU"
           ports:
             - containerPort: 7700
           securityContext:
@@ -385,7 +385,7 @@ spec:
             - "--mysql-native-password=ON"
           env:
             - name: MYSQL_ROOT_PASSWORD
-              value: "YaNfdVnv"
+              value: "WqOeeQ8s"
           ports:
             - containerPort: 3306
           volumeMounts:
@@ -488,7 +488,7 @@ spec:
     spec:
       containers:
         - name: mfe
-          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-er3gyoiz
+          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-wiar5b7w
           ports:
             - containerPort: 8002
           volumeMounts:

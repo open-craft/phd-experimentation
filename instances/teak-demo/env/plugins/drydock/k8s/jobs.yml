@@ -123,18 +123,18 @@ spec:
         - -e
         - -c
         - "echo \"Initialising MySQL...\"\nmysql_connection_max_attempts=10\nmysql_connection_attempt=0\n\
-          until mysql -u root --password=\"YaNfdVnv\" --host \"mysql\" --port 3306\
+          until mysql -u root --password=\"WqOeeQ8s\" --host \"mysql\" --port 3306\
           \ -e 'exit'\ndo\n    mysql_connection_attempt=$(expr $mysql_connection_attempt\
           \ + 1)\n    echo \"    [$mysql_connection_attempt/$mysql_connection_max_attempts]\
           \ Waiting for MySQL service (this may take a while)...\"\n    if [ $mysql_connection_attempt\
           \ -eq $mysql_connection_max_attempts ]\n    then\n      echo \"MySQL initialisation\
           \ error\" 1>&2\n      exit 1\n    fi\n    sleep 10\ndone\necho \"MySQL is\
           \ up and running\"\n\n# edx-platform database\nmysql -u root --password=\"\
-          YaNfdVnv\" --host \"mysql\" --port 3306 -e \"CREATE DATABASE IF NOT EXISTS\
-          \ openedx;\"\nmysql -u root --password=\"YaNfdVnv\" --host \"mysql\" --port\
+          WqOeeQ8s\" --host \"mysql\" --port 3306 -e \"CREATE DATABASE IF NOT EXISTS\
+          \ openedx;\"\nmysql -u root --password=\"WqOeeQ8s\" --host \"mysql\" --port\
           \ 3306 -e \"CREATE USER IF NOT EXISTS 'openedx';\"\nmysql -u root --password=\"\
-          YaNfdVnv\" --host \"mysql\" --port 3306 -e \"ALTER USER 'openedx'@'%' IDENTIFIED\
-          \ BY 'gm8bcCoq';\"\nmysql -u root --password=\"YaNfdVnv\" --host \"mysql\"\
+          WqOeeQ8s\" --host \"mysql\" --port 3306 -e \"ALTER USER 'openedx'@'%' IDENTIFIED\
+          \ BY 'CJ62F8UZ';\"\nmysql -u root --password=\"WqOeeQ8s\" --host \"mysql\"\
           \ --port 3306 -e \"GRANT ALL ON openedx.* TO 'openedx'@'%';\""
         image: docker.io/mysql:8.4.0
         name: mysql
@@ -165,11 +165,11 @@ spec:
         - -e
         - -c
         - "# Get or create Meilisearch API key\npython -c \"\nimport meilisearch\n\
-          client = meilisearch.Client('http://meilisearch:7700', 'oRaIEBfysXN3PY5Lr9K5xQQ8')\n\
-          try:\n    client.get_key('839c12c0-6ea0-4f78-99f7-3fcccebca60a')\n    print('Key\
+          client = meilisearch.Client('http://meilisearch:7700', 'mZWtrnU5q8m1n7vKTwkyeDCU')\n\
+          try:\n    client.get_key('cc8f01ea-b6ad-4187-bb37-885cd60dd2fc')\n    print('Key\
           \ already exists')\nexcept meilisearch.errors.MeilisearchApiError:\n   \
           \ print('Key does not exist: creating...')\n    client.create_key({\n  \
-          \      'name': 'Open edX backend API key',\n        'uid': '839c12c0-6ea0-4f78-99f7-3fcccebca60a',\n\
+          \      'name': 'Open edX backend API key',\n        'uid': 'cc8f01ea-b6ad-4187-bb37-885cd60dd2fc',\n\
           \        'actions': ['*'],\n        'indexes': ['tutor_*'],\n        'expiresAt':\
           \ None,\n        'description': 'Use it for backend API calls -- Created\
           \ by Tutor',\n    })\n\""
@@ -231,11 +231,11 @@ spec:
           ./manage.py lms manage_user cms cms@openedx --unusable-password\n./manage.py\
           \ lms create_dot_application \\\n  --grant-type authorization-code \\\n\
           \  --redirect-uris \"https://studio.teak-demo.phd.opencraft.hosting/complete/edx-oauth2/\"\
-          \ \\\n  --client-id cms-sso \\\n  --client-secret 0kwmglknyEcZgheTaLVbLJ46\
+          \ \\\n  --client-id cms-sso \\\n  --client-secret kZyZKtEB6JyQjeaIffRzsy0c\
           \ \\\n  --scopes user_id \\\n  --skip-authorization \\\n  --update cms-sso\
           \ cms\n./manage.py lms create_dot_application \\\n  --grant-type authorization-code\
           \ \\\n  --redirect-uris \"http://studio.teak-demo.phd.opencraft.hosting:8001/complete/edx-oauth2/\"\
-          \ \\\n  --client-id cms-sso-dev \\\n  --client-secret 0kwmglknyEcZgheTaLVbLJ46\
+          \ \\\n  --client-id cms-sso-dev \\\n  --client-secret kZyZKtEB6JyQjeaIffRzsy0c\
           \ \\\n  --scopes user_id \\\n  --skip-authorization \\\n  --update cms-sso-dev\
           \ cms\n\n\n# Fix incorrect uploaded file path\nif [ -d /openedx/data/uploads/\
           \ ]; then\n  if [ -n \"$(ls -A /openedx/data/uploads/)\" ]; then\n    echo\
