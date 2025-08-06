@@ -43,8 +43,8 @@ MEILISEARCH_ENABLED = True
 MEILISEARCH_URL = "http://meilisearch:7700"
 MEILISEARCH_PUBLIC_URL = "http://meilisearch.www.myopenedx.com"
 MEILISEARCH_INDEX_PREFIX = "tutor_"
-MEILISEARCH_API_KEY = "b63fa8e19e2330419794277261ee7a9e3d2884dd3901162bfbf62d0698b16466"
-MEILISEARCH_MASTER_KEY = "DmciFhqv3IDZNuQx2PCNmzDM"
+MEILISEARCH_API_KEY = "6ff8ec4f48a8d3b6e52f5ca9e5b015bd20765c8a4c575eda0ae9493a5f979be5"
+MEILISEARCH_MASTER_KEY = "ZVYegk6MBr4SHqwDKfXPq9g2"
 SEARCH_ENGINE = "search.meilisearch.MeilisearchEngine"
 
 # Common cache config
@@ -181,19 +181,19 @@ X_FRAME_OPTIONS = "SAMEORIGIN"
 
 JWT_AUTH["JWT_ISSUER"] = "http://www.myopenedx.com/oauth2"
 JWT_AUTH["JWT_AUDIENCE"] = "openedx"
-JWT_AUTH["JWT_SECRET_KEY"] = "qHl8obGp8OOMhR6CE0m9Kl2w"
+JWT_AUTH["JWT_SECRET_KEY"] = "7PFGSyjNZhnR4mlKCJpgkyB9"
 JWT_AUTH["JWT_PRIVATE_SIGNING_JWK"] = json.dumps(
     {
         "kid": "openedx",
         "kty": "RSA",
         "e": "AQAB",
-        "d": "FZKdr3UCOdw-cqvDfpA2QrA67ALrzKbLt5BGlRzGb1oHGFqeU6KcJaceFpn5UsYEMQqeIzS-uNXqaxk10ukmo8lsZ0GOz3DhUUsYNYnoyfBzN3qfNMlK55xKmKHLxZo3rrJ4YaXGcpbJsSsLrapSdlXPGEz1Aicm42TjgzML5NQkpxwakfon8yOjhETHd1zdj7ZdC2ADz8HiRqgnF011XVqCZKCS2S5x4whXV3A0dP-gDSFOiVDGBwWaKKY7tiy_40OSRdEFn1FpUsjMumLjSqjHz_H3c1tHmJoBNt7erSkiIZab3ZuXymXKeqSlc9hpTAdbaBcH0quWfsF6btbVfQ",
-        "n": "pSLMQgr23HnyXMpB4eFvg5DBaKoxS2JPwey30J38JYKT0ETaaB1L-NyLVOgXdwhERDL8sM2KFi0J-PZLcdGMwi5SozrkgXagTlqOYQiER2GtYW22omis20WpSK_U7JQrYl1p_Rqwk_0T_No-uWsBcKGhIF6lmMFuySOvNZW7ypqKZLTxos3ERBjDyTrh3M_u0ucUgKuGpHRIsJtMp6_JdWLr1FIfVAyd_kPokifvC7-iZZUypuKtafjERVSDswNvAF10ll9jXMXyUz3YKPmdUbmaxxk_hsAsbC-hEyCtHtRzaP2gVfqJAnC2vNKMB2wWJJ5n-DEq4_H8I8srj_CYEw",
-        "p": "vpUqbCG_KkMbyE1ElKcBXS7aZmJPbaL-xoa4TS5p4T_M6wMOaQLgADg0N_F-PnQsLmd5qAFo-rikj8SPMTGn5HksQUnCoeesbI1XfNreM1ZnvcSI-P33J1g_4lFKgCL_DE-t__tfLdPaC4FU4tL2n-HN_RYpGWRO6tEWSvQ1Pi0",
-        "q": "3dGU6CVnHJLy4tGEDoC-nmvaLyK1aEQSwia0UImZA0K7ORKZjz5QD_ABiRMjex9a99Hfcy9mnFj7TZj-e5eqRPZZ_BMtlaB8SEZxHQAL2FTAnlwrYG8jUrwwKHZGBSd-xRoYo6bL7xL45fm4HXn0GstxiuioEqTOlYV60X-pVz8",
-        "dq": "sNf7SI0xRKWfQNfa2Zko37KKs1OPnz3OWr1yulbJB8F29Exw4rPCLsKg5sC8Y9eetb67z-A1hWani7jzAmPrGqnxGbfMeuME0rZeTcmQp_sByf8fkfVpCvf_yPJqZoeTWN6yUB6VrdfJWcgaUl29EHOr5RwRizObg7d0MHv_7Q8",
-        "dp": "tLIHM9jXQEG6gLJJ-MtTLr9ykSpa9q9Y8m_fJEaCWu-74YLXUddI_MxNLlGIibxp-2FeZl1X5IfWdv09ar4S2jvNKuW9ZPacc5ubPKTjkjc1SyahW7qncCVrBLBge5cyzMBrUE5MUs4PaWMpUZoF_VcBkBlHxGxnqpmtkklyhc0",
-        "qi": "JbPdZmO46vYQCb7Z5PmG2oqO3WIvv4jdQuZMH1I-rZqOf5R9W4h5z-fy2wxfB_1hjGt99TsZ2h6MOwT4fK5BPaDAD4vCxtJYWujDcAZN7d9T8ZnC7hq48deqT7fbxpxgJsRDohCo78tlcwVJJ7FRb8W_Zkx-P9OFL6iUT6ALwew",
+        "d": "FsFKL7S37qhmAbEA8sghOMd08t4e0L40BL2jDW-BLWMhTS13860SaFuG39yFjgh2NB03p8T1mNAztCzZquBUtk7r0A77v77Mhv6fADELVfLglwsspIt1F_Ae-WasaB7N2Xe3daaNqIa4_vOjUJ9JGbEnO7GR9RIaEdrLH-238Z28KFcOfDHiDXMceYn6XJa3gwv47thWWt5oG0JhDXLa8XQPY9AfV6ygOfEINaqYWLmM5la4Xu24Sq1DqvGbNXKOdwaDLQYZO-cOOzONuY5gO-_2T9CSU5i1V5fQzYOAMMDYrKqjFf3_t4zYEkW2-QEb-QFevCcoireZWguWk5I7MQ",
+        "n": "wFN-WV56RIzuToslskByIW8N4IntV4YiCW5UfQOV_Axe1HIBfY7CtHWCQgKwHxnTYedt11h1uYn0ZB7UvbSUZDjbL_bhpmovmeOKbTdAen5Vgb31jtO_ZvtGowR71VF7Bg97Uu9Ff-ndMPMRHEfl4lxXUfhlHR8Sa8pIl16eDg-HU1w494B5B1tWPF75Oq8eUfDI2SnOYlWgANGuCxM2xWQQhUzY75hvdEYH7kI-No-hS2QihxddmgO9HiUMv_xCqMQXuiE_jgfSr4LlPOmjMHEmu6msiibY6Ate50QAYQMHBlCbQpSsNE14dVb3zrBqiQbIdK_E2_0VidrETGh25w",
+        "p": "0vshFCvH6MAuEmRqRNC2EP3cMMETxZkOIq1dI0NYnMEcJV83VtqaxpJ9IyFVu5IV5z8j3bydNx-aMdfC7eiYlWgshvMe6CeO9misoXW1bq8OE_B2kiQfgH6u07R2ONz2-oJcu7RBf378gavu06pJIBS0SdDJsGHlMQ_QoBBvdr0",
+        "q": "6V1XYKTiBcSpiWsOhqLbAUCvPPHxz12wxqF8uDb-RRdlidL3wZwn_Q1SwqPCpYds7eKqF5JZKSwdZkqASpWyY0_g_BeXGXa0vuJ6Ud88VXG7Nz_6ccBS_Dke_YTvh9qlD2_WCSJlNebBKYb8vA3zTyOFzxS_j7Geylck_tKgoHM",
+        "dq": "au1vFQRX4Ea9XA7myAAlE0zdPrKplteaIVlrOUlRdr0CtIUrKtZvaD7Llg3NKWWFHvcF8ukG25uwGOe4IvS2mVTHhRsWC__dT72cSJleHtSO8QDqs2ZpX9KYhZd83aXsjcczrlnJQEpsZafJdC18N93R-RHLuH6tgI8vj2dZXEs",
+        "dp": "EdaDvHXbKBWfj5SH25ud2R_tjv20Ez_Wjx4DQuj9w_sbyxkaz7AZ5_IYvHCkFADM80lGWggJbtCwM8ifRYgl5nPxV9OUaGJ31uOQvPH7zgjk8tCg5chCFZYgZ-vZFwOvqgx9lK0v4Hy3EqubvK-oERtPBvKtKsmMHDLPG8ln8y0",
+        "qi": "cSOV7lBJY5gIW-xLWyuZuaiv4oqDvrqdX7Oel3mExTqmfBQ3DGgZ0_pzWLPCmPfwRbcuW-FcyB0_exn2QvxHKKi4-mV4FM0AA7PN1wIaP80cTNcD_ceZDCkC5R9uvH93pOg84sJQwiXKyZi9bBFOcLgO2brM5vst1EYVhiHRFA0",
     }
 )
 JWT_AUTH["JWT_PUBLIC_SIGNING_JWK_SET"] = json.dumps(
@@ -203,7 +203,7 @@ JWT_AUTH["JWT_PUBLIC_SIGNING_JWK_SET"] = json.dumps(
                 "kid": "openedx",
                 "kty": "RSA",
                 "e": "AQAB",
-                "n": "pSLMQgr23HnyXMpB4eFvg5DBaKoxS2JPwey30J38JYKT0ETaaB1L-NyLVOgXdwhERDL8sM2KFi0J-PZLcdGMwi5SozrkgXagTlqOYQiER2GtYW22omis20WpSK_U7JQrYl1p_Rqwk_0T_No-uWsBcKGhIF6lmMFuySOvNZW7ypqKZLTxos3ERBjDyTrh3M_u0ucUgKuGpHRIsJtMp6_JdWLr1FIfVAyd_kPokifvC7-iZZUypuKtafjERVSDswNvAF10ll9jXMXyUz3YKPmdUbmaxxk_hsAsbC-hEyCtHtRzaP2gVfqJAnC2vNKMB2wWJJ5n-DEq4_H8I8srj_CYEw",
+                "n": "wFN-WV56RIzuToslskByIW8N4IntV4YiCW5UfQOV_Axe1HIBfY7CtHWCQgKwHxnTYedt11h1uYn0ZB7UvbSUZDjbL_bhpmovmeOKbTdAen5Vgb31jtO_ZvtGowR71VF7Bg97Uu9Ff-ndMPMRHEfl4lxXUfhlHR8Sa8pIl16eDg-HU1w494B5B1tWPF75Oq8eUfDI2SnOYlWgANGuCxM2xWQQhUzY75hvdEYH7kI-No-hS2QihxddmgO9HiUMv_xCqMQXuiE_jgfSr4LlPOmjMHEmu6msiibY6Ate50QAYQMHBlCbQpSsNE14dVb3zrBqiQbIdK_E2_0VidrETGh25w",
             }
         ]
     }
@@ -212,7 +212,7 @@ JWT_AUTH["JWT_ISSUERS"] = [
     {
         "ISSUER": "http://www.myopenedx.com/oauth2",
         "AUDIENCE": "openedx",
-        "SECRET_KEY": "qHl8obGp8OOMhR6CE0m9Kl2w"
+        "SECRET_KEY": "7PFGSyjNZhnR4mlKCJpgkyB9"
     }
 ]
 
