@@ -9,6 +9,7 @@ resources:
 - k8s/volumes.yml
 - plugins/drydock/k8s/multipurpose-jobs.yml
 - plugins/drydock/k8s/pdb/openedx-pdb.yml
+- plugins/drydock/k8s/jobs.yml
 - plugins/drydock/k8s/ingress/issuer.yml
 - plugins/drydock/k8s/ingress/lms.yml
 - plugins/drydock/k8s/ingress/cms.yml
@@ -33,7 +34,7 @@ commonAnnotations:
 # https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/
 # https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/commonlabels/
 commonLabels:
-  app.kubernetes.io/instance: openedx-tb8iQ4m2ufRKbKrpriIi6fPp
+  app.kubernetes.io/instance: openedx-eCvjrMptamdo8Ukst6GYZhwg
   app.kubernetes.io/part-of: openedx
   app.kubernetes.io/managed-by: tutor
   

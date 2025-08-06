@@ -2,6 +2,13 @@
 {
 
     
+    # Enable proxying from all servers by default. Otherwise, X-Forwarded-* headers will
+    # be overwritten.
+    # https://caddyserver.com/docs/caddyfile/directives/reverse_proxy#defaults
+    servers {
+        trusted_proxies static 0.0.0.0/0 ::/0
+    }
+    
     
 }
 

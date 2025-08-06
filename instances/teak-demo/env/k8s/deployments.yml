@@ -14,41 +14,21 @@ spec:
       labels:
         app.kubernetes.io/name: caddy
     spec:
-      # This Deployment uses a persistent volume claim. This requires
-      # that in order to enable rolling updates (i.e. use a deployment
-      # strategy other than Replace), we schedule the new Pod to the
-      # same node as the original Pod.
-      affinity:
-        podAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                - key: app.kubernetes.io/name
-                  operator: In
-                  values:
-                    - caddy
-              topologyKey: "kubernetes.io/hostname"
       containers:
         - name: caddy
           image: docker.io/caddy:2.7.4
           env:
           - name: default_site_port
-            value: ""
+            value: ":80"
           volumeMounts:
             - mountPath: /etc/caddy/
               name: config
-            - mountPath: /data/
-              name: data
           ports:
             - containerPort: 80
-            - containerPort: 443
       volumes:
         - name: config
           configMap:
             name: caddy-config
-        - name: data
-          persistentVolumeClaim:
-            claimName: caddy
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -70,7 +50,7 @@ spec:
         runAsGroup: 1000
       containers:
         - name: cms
-          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-ia7o0t4b
+          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-345ao448
           env:
           - name: SERVICE_VARIANT
             value: cms
@@ -132,7 +112,7 @@ spec:
         runAsGroup: 1000
       containers:
         - name: cms-worker
-          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-ia7o0t4b
+          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-345ao448
           args:
           
           - "celery"
@@ -190,7 +170,7 @@ spec:
         runAsGroup: 1000
       containers:
         - name: lms
-          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-ia7o0t4b
+          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-345ao448
           env:
           - name: SERVICE_VARIANT
             value: lms
@@ -252,7 +232,7 @@ spec:
         runAsGroup: 1000
       containers:
         - name: lms-worker
-          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-ia7o0t4b
+          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-345ao448
           args: 
           - "celery"
           - "--app=lms.celery"
@@ -317,7 +297,7 @@ spec:
           image: docker.io/getmeili/meilisearch:v1.8.4
           env:
             - name: MEILI_MASTER_KEY
-              value: "ZAXs7aQgsVlCt45Cg9kRx19W"
+              value: "oRaIEBfysXN3PY5Lr9K5xQQ8"
           ports:
             - containerPort: 7700
           securityContext:
@@ -405,7 +385,7 @@ spec:
             - "--mysql-native-password=ON"
           env:
             - name: MYSQL_ROOT_PASSWORD
-              value: "rqMfVgNx"
+              value: "YaNfdVnv"
           ports:
             - containerPort: 3306
           volumeMounts:
