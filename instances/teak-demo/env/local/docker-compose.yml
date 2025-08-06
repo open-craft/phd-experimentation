@@ -48,12 +48,12 @@ services:
     volumes:
       - ../../data/mysql:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: "8jNGouQN"
+      MYSQL_ROOT_PASSWORD: "rqMfVgNx"
 
   meilisearch:
     image: docker.io/getmeili/meilisearch:v1.8.4
     environment:
-      MEILI_MASTER_KEY: "hLLsD1WFaqS9V2DCNT5xjHKj"
+      MEILI_MASTER_KEY: "ZAXs7aQgsVlCt45Cg9kRx19W"
     volumes:
       - ../../data/meilisearch:/meili_data
     restart: unless-stopped
@@ -133,7 +133,7 @@ services:
 
   # MFE
   mfe:
-      image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-ssy4vkjh
+      image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-er3gyoiz
       restart: unless-stopped
       volumes:
           - ../plugins/mfe/apps/mfe/Caddyfile:/etc/caddy/Caddyfile:ro

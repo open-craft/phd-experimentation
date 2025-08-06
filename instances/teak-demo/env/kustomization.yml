@@ -33,7 +33,7 @@ commonAnnotations:
 # https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/
 # https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/commonlabels/
 commonLabels:
-  app.kubernetes.io/instance: openedx-UqpkGj0A1DagSyjZyxmYyJuL
+  app.kubernetes.io/instance: openedx-tb8iQ4m2ufRKbKrpriIi6fPp
   app.kubernetes.io/part-of: openedx
   app.kubernetes.io/managed-by: tutor
   
