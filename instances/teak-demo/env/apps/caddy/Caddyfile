@@ -28,13 +28,13 @@
     encode gzip
 
     reverse_proxy {args.0} {
-        header_up X-Forwarded-Port 80
+        header_up X-Forwarded-Port 443
     }
 
     
 }
 
-www.myopenedx.com{$default_site_port}, preview.www.myopenedx.com{$default_site_port} {
+teak-demo.phd.opencraft.hosting{$default_site_port}, preview.teak-demo.phd.opencraft.hosting{$default_site_port} {
     @favicon_matcher {
         path_regexp ^/favicon.ico$
     }
@@ -149,7 +149,7 @@ www.myopenedx.com{$default_site_port}, preview.www.myopenedx.com{$default_site_p
     }
 }
 
-studio.www.myopenedx.com{$default_site_port} {
+studio.teak-demo.phd.opencraft.hosting{$default_site_port} {
     @favicon_matcher {
         path_regexp ^/favicon.ico$
     }
@@ -159,7 +159,7 @@ studio.www.myopenedx.com{$default_site_port} {
 
     
     reverse_proxy /api/mfe_config/v1* lms:8000 {
-        header_up Host www.myopenedx.com
+        header_up Host teak-demo.phd.opencraft.hosting
     }
     @authoring path_regexp authoring /course-authoring/(.*)
     redir @authoring /authoring/{re.authoring.1} permanent
@@ -182,13 +182,13 @@ studio.www.myopenedx.com{$default_site_port} {
 }
 
 
-meilisearch.www.myopenedx.com{$default_site_port} {
+meilisearch.teak-demo.phd.opencraft.hosting{$default_site_port} {
     import proxy "meilisearch:7700"
 }
 
 
-apps.www.myopenedx.com{$default_site_port} {
-    redir / http://www.myopenedx.com
+apps.teak-demo.phd.opencraft.hosting{$default_site_port} {
+    redir / https://teak-demo.phd.opencraft.hosting
     request_body {
         max_size 2MB
     }

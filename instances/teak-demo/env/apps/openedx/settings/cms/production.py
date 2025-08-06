@@ -41,10 +41,10 @@ DJANGO_REDIS_IGNORE_EXCEPTIONS = True
 # Meilisearch connection parameters
 MEILISEARCH_ENABLED = True
 MEILISEARCH_URL = "http://meilisearch:7700"
-MEILISEARCH_PUBLIC_URL = "http://meilisearch.www.myopenedx.com"
+MEILISEARCH_PUBLIC_URL = "https://meilisearch.teak-demo.phd.opencraft.hosting"
 MEILISEARCH_INDEX_PREFIX = "tutor_"
-MEILISEARCH_API_KEY = "6ff8ec4f48a8d3b6e52f5ca9e5b015bd20765c8a4c575eda0ae9493a5f979be5"
-MEILISEARCH_MASTER_KEY = "ZVYegk6MBr4SHqwDKfXPq9g2"
+MEILISEARCH_API_KEY = "593ffdc52300e02d8cb1403146ecb1b78b3a718d3ff1bd41a38c5cb245c1b210"
+MEILISEARCH_MASTER_KEY = "hLLsD1WFaqS9V2DCNT5xjHKj"
 SEARCH_ENGINE = "search.meilisearch.MeilisearchEngine"
 
 # Common cache config
@@ -95,7 +95,7 @@ CACHES = {
 SITE_ID = 2
 
 # Contact addresses
-CONTACT_MAILING_ADDRESS = "My Open edX - http://www.myopenedx.com"
+CONTACT_MAILING_ADDRESS = "Picasso Harmony Drydock Experimentation - https://teak-demo.phd.opencraft.hosting"
 DEFAULT_FROM_EMAIL = ENV_TOKENS.get("DEFAULT_FROM_EMAIL", ENV_TOKENS["CONTACT_EMAIL"])
 DEFAULT_FEEDBACK_EMAIL = ENV_TOKENS.get("DEFAULT_FEEDBACK_EMAIL", ENV_TOKENS["CONTACT_EMAIL"])
 SERVER_EMAIL = ENV_TOKENS.get("SERVER_EMAIL", ENV_TOKENS["CONTACT_EMAIL"])
@@ -179,21 +179,21 @@ LANGUAGE_COOKIE_NAME = "openedx-language-preference"
 X_FRAME_OPTIONS = "SAMEORIGIN"
 
 
-JWT_AUTH["JWT_ISSUER"] = "http://www.myopenedx.com/oauth2"
+JWT_AUTH["JWT_ISSUER"] = "https://teak-demo.phd.opencraft.hosting/oauth2"
 JWT_AUTH["JWT_AUDIENCE"] = "openedx"
-JWT_AUTH["JWT_SECRET_KEY"] = "7PFGSyjNZhnR4mlKCJpgkyB9"
+JWT_AUTH["JWT_SECRET_KEY"] = "QOx9aDCUAlVLsWIDQVUx2NUv"
 JWT_AUTH["JWT_PRIVATE_SIGNING_JWK"] = json.dumps(
     {
         "kid": "openedx",
         "kty": "RSA",
         "e": "AQAB",
-        "d": "FsFKL7S37qhmAbEA8sghOMd08t4e0L40BL2jDW-BLWMhTS13860SaFuG39yFjgh2NB03p8T1mNAztCzZquBUtk7r0A77v77Mhv6fADELVfLglwsspIt1F_Ae-WasaB7N2Xe3daaNqIa4_vOjUJ9JGbEnO7GR9RIaEdrLH-238Z28KFcOfDHiDXMceYn6XJa3gwv47thWWt5oG0JhDXLa8XQPY9AfV6ygOfEINaqYWLmM5la4Xu24Sq1DqvGbNXKOdwaDLQYZO-cOOzONuY5gO-_2T9CSU5i1V5fQzYOAMMDYrKqjFf3_t4zYEkW2-QEb-QFevCcoireZWguWk5I7MQ",
-        "n": "wFN-WV56RIzuToslskByIW8N4IntV4YiCW5UfQOV_Axe1HIBfY7CtHWCQgKwHxnTYedt11h1uYn0ZB7UvbSUZDjbL_bhpmovmeOKbTdAen5Vgb31jtO_ZvtGowR71VF7Bg97Uu9Ff-ndMPMRHEfl4lxXUfhlHR8Sa8pIl16eDg-HU1w494B5B1tWPF75Oq8eUfDI2SnOYlWgANGuCxM2xWQQhUzY75hvdEYH7kI-No-hS2QihxddmgO9HiUMv_xCqMQXuiE_jgfSr4LlPOmjMHEmu6msiibY6Ate50QAYQMHBlCbQpSsNE14dVb3zrBqiQbIdK_E2_0VidrETGh25w",
-        "p": "0vshFCvH6MAuEmRqRNC2EP3cMMETxZkOIq1dI0NYnMEcJV83VtqaxpJ9IyFVu5IV5z8j3bydNx-aMdfC7eiYlWgshvMe6CeO9misoXW1bq8OE_B2kiQfgH6u07R2ONz2-oJcu7RBf378gavu06pJIBS0SdDJsGHlMQ_QoBBvdr0",
-        "q": "6V1XYKTiBcSpiWsOhqLbAUCvPPHxz12wxqF8uDb-RRdlidL3wZwn_Q1SwqPCpYds7eKqF5JZKSwdZkqASpWyY0_g_BeXGXa0vuJ6Ud88VXG7Nz_6ccBS_Dke_YTvh9qlD2_WCSJlNebBKYb8vA3zTyOFzxS_j7Geylck_tKgoHM",
-        "dq": "au1vFQRX4Ea9XA7myAAlE0zdPrKplteaIVlrOUlRdr0CtIUrKtZvaD7Llg3NKWWFHvcF8ukG25uwGOe4IvS2mVTHhRsWC__dT72cSJleHtSO8QDqs2ZpX9KYhZd83aXsjcczrlnJQEpsZafJdC18N93R-RHLuH6tgI8vj2dZXEs",
-        "dp": "EdaDvHXbKBWfj5SH25ud2R_tjv20Ez_Wjx4DQuj9w_sbyxkaz7AZ5_IYvHCkFADM80lGWggJbtCwM8ifRYgl5nPxV9OUaGJ31uOQvPH7zgjk8tCg5chCFZYgZ-vZFwOvqgx9lK0v4Hy3EqubvK-oERtPBvKtKsmMHDLPG8ln8y0",
-        "qi": "cSOV7lBJY5gIW-xLWyuZuaiv4oqDvrqdX7Oel3mExTqmfBQ3DGgZ0_pzWLPCmPfwRbcuW-FcyB0_exn2QvxHKKi4-mV4FM0AA7PN1wIaP80cTNcD_ceZDCkC5R9uvH93pOg84sJQwiXKyZi9bBFOcLgO2brM5vst1EYVhiHRFA0",
+        "d": "AdxmGi66y6-6lXHKAfC0c8vIAoKNsPI0tnvmTczP3TaOCIWWl9AXLUqx-5WUHY_WVQAqUKfWtyjIbBZzeX0KrsnhBgJtqGEryJPgp9LLGT4AAnL1qZ4kgHo_L_4sm-Ed4vg4EL4_NHaduGCsmHNFHLN9E-1775u2KoBKGP7eb31y_xX3AKWVbZS7QSLAuz3BkwIJ6-ln3gzsajySRrtEgMSDl_1G6_MywUr0mrLQGJXUpPOYxyxecYR8Auocp0SnLwhb1mFMsMmW2V93Fw7HujDjh1RY0fM8zFQDu7x0M0Lvrfu3wSyRQeTNrZNTGoUQekoAP46Kg1jiwEciccBcVw",
+        "n": "scr3shauowiY5p__ANm-oPwCTFE7ljkFfqFKcKYe_BBJ5YLZGdgKEdc_-6gQABT1ekIMknMh8poGBbmNKE-t1WRB48GG9otDUV34f8aSx1-LiAsWmEQQ2eCmomaODvMpa27KQhKdlGDNCBJGze3ZQGBmr0nUWH11eXI8HcS_gkVmoOgAr8_lmbDm-DmTdn7ZgGRkYz5bbttbrRw819Re0ugFLfVVS_E8EbxX-Sux_CwWqNy9EuspcKL961kBy6SA05So0FxZMBwfIGFJggG9Zyb_ztZs3RYr_vA4W3bctK1qZvxosLiJ-JW7S8VW8V8DoF4w2jyCDLVmyLo7KSN63Q",
+        "p": "xtTGDnAu5GJm3Z6H9dgMS-CDCLc9-xC8PsyS7xK1ZLmyPiGfBwBrw5TJZGkhmnd6LPYDyfbKSvcw5K_ynYroUET0tK-QnMBiYIy_XNTeju7by94QKtzTcGSdiHtvAJGbLnolx8g7NE8x4fgtf8uZDiD9seUZpfKSvYTOMS0VdYc",
+        "q": "5OmkWGZ_B0ZhpYhdjzDejOQ7hg9_br1W9K-z1-OFJSbzI5_Y-FZ_koDQW3Pk37OLxg14DpNowLX66fLRLMp6tjQ1Xhnte-QLvADZZS9oB4GuCvHA_VviOAB5c5j0PbjVZnZTIzGj5h2OQShTh0q7TIgkfzjc3zQ45FGJXsFMpXs",
+        "dq": "S3zxAWXrhg6jrN7nW40WFwg8yNzbfT1bK521hQA2rCXIEHtqJZsAvuNT0pTJaSvgcBOI_-WEqehZMkUszcSH6wYUg0-xjSWK6RiumDul5rPRHTLUHbjrROSDKKfMA36sgPmMORLppb0haENQKFFwqrBKuNmbnM-v4zswPdso13k",
+        "dp": "HijmRghkRIZcnh9O9k6oRtYuaiMJhszaERiM7TDETRwR2nTVH4XD0u39wnpj-39GDA3hM0B5HPfz9axuu9D3Pj3HdKTw5aYVBhozaMxtWfcHZhwwDaBjfjf04V__zXFIvbsPggdwW5XrtiAkHq9ubwM4GETtKAvskEzVzgXNrH8",
+        "qi": "LMixnTzc_ntHDW3OXpc5vhonRkpjzHFlKXkEc4Yh9gZxLF600jYNxeiRQBEKUOir3BHp1Pk7SJgtEaX2y5EE25OmSO2VeAahJYJUdZR3wJMArsc8D_zGzGEHfGuuUO1_hFbnhdP-Lvk2iPbxx2AAUecRS3KIkxHi2Nofq8-UrqM",
     }
 )
 JWT_AUTH["JWT_PUBLIC_SIGNING_JWK_SET"] = json.dumps(
@@ -203,16 +203,16 @@ JWT_AUTH["JWT_PUBLIC_SIGNING_JWK_SET"] = json.dumps(
                 "kid": "openedx",
                 "kty": "RSA",
                 "e": "AQAB",
-                "n": "wFN-WV56RIzuToslskByIW8N4IntV4YiCW5UfQOV_Axe1HIBfY7CtHWCQgKwHxnTYedt11h1uYn0ZB7UvbSUZDjbL_bhpmovmeOKbTdAen5Vgb31jtO_ZvtGowR71VF7Bg97Uu9Ff-ndMPMRHEfl4lxXUfhlHR8Sa8pIl16eDg-HU1w494B5B1tWPF75Oq8eUfDI2SnOYlWgANGuCxM2xWQQhUzY75hvdEYH7kI-No-hS2QihxddmgO9HiUMv_xCqMQXuiE_jgfSr4LlPOmjMHEmu6msiibY6Ate50QAYQMHBlCbQpSsNE14dVb3zrBqiQbIdK_E2_0VidrETGh25w",
+                "n": "scr3shauowiY5p__ANm-oPwCTFE7ljkFfqFKcKYe_BBJ5YLZGdgKEdc_-6gQABT1ekIMknMh8poGBbmNKE-t1WRB48GG9otDUV34f8aSx1-LiAsWmEQQ2eCmomaODvMpa27KQhKdlGDNCBJGze3ZQGBmr0nUWH11eXI8HcS_gkVmoOgAr8_lmbDm-DmTdn7ZgGRkYz5bbttbrRw819Re0ugFLfVVS_E8EbxX-Sux_CwWqNy9EuspcKL961kBy6SA05So0FxZMBwfIGFJggG9Zyb_ztZs3RYr_vA4W3bctK1qZvxosLiJ-JW7S8VW8V8DoF4w2jyCDLVmyLo7KSN63Q",
             }
         ]
     }
 )
 JWT_AUTH["JWT_ISSUERS"] = [
     {
-        "ISSUER": "http://www.myopenedx.com/oauth2",
+        "ISSUER": "https://teak-demo.phd.opencraft.hosting/oauth2",
         "AUDIENCE": "openedx",
-        "SECRET_KEY": "7PFGSyjNZhnR4mlKCJpgkyB9"
+        "SECRET_KEY": "QOx9aDCUAlVLsWIDQVUx2NUv"
     }
 ]
 
@@ -224,7 +224,7 @@ FEATURES["ENABLE_CORS_HEADERS"] = True
 # CORS
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = False
-CORS_ALLOW_INSECURE = True
+CORS_ALLOW_INSECURE = False
 # Note: CORS_ALLOW_HEADERS is intentionally not defined here, because it should
 # be consistent across deployments, and is therefore set in edx-platform.
 
@@ -369,7 +369,7 @@ FORUM_MONGODB_DATABASE = "cs_comments_service"
 ######## End of settings common to LMS and CMS
 
 ######## Common CMS settings
-STUDIO_NAME = "My Open edX - Studio"
+STUDIO_NAME = "Picasso Harmony Drydock Experimentation - Studio"
 
 CACHES["staticfiles"] = {
     "KEY_PREFIX": "staticfiles_cms",
@@ -378,7 +378,7 @@ CACHES["staticfiles"] = {
 }
 
 # Authentication
-SOCIAL_AUTH_EDX_OAUTH2_SECRET = "oaJOK6Fv4Sq62EzyGozpIq1u"
+SOCIAL_AUTH_EDX_OAUTH2_SECRET = "yGfdCwBWSijrz4oKAjjmjszr"
 SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT = "http://lms:8000"
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = False  # scheme is correctly included in redirect_uri
 SESSION_COOKIE_NAME = "studio_session_id"
@@ -404,21 +404,21 @@ ALLOWED_HOSTS = [
     ENV_TOKENS.get("CMS_BASE"),
     "cms",
 ]
-CORS_ORIGIN_WHITELIST.append("http://studio.www.myopenedx.com")
+CORS_ORIGIN_WHITELIST.append("https://studio.teak-demo.phd.opencraft.hosting")
 
 # Authentication
 SOCIAL_AUTH_EDX_OAUTH2_KEY = "cms-sso"
-SOCIAL_AUTH_EDX_OAUTH2_PUBLIC_URL_ROOT = "http://www.myopenedx.com"
+SOCIAL_AUTH_EDX_OAUTH2_PUBLIC_URL_ROOT = "https://teak-demo.phd.opencraft.hosting"
 
 # MFE-specific settings
 
-COURSE_AUTHORING_MICROFRONTEND_URL = "http://apps.www.myopenedx.com/authoring"
+COURSE_AUTHORING_MICROFRONTEND_URL = "https://apps.teak-demo.phd.opencraft.hosting/authoring"
 
 
-LOGIN_REDIRECT_WHITELIST.append("apps.www.myopenedx.com")
-CORS_ORIGIN_WHITELIST.append("http://apps.www.myopenedx.com")
-CSRF_TRUSTED_ORIGINS.append("http://apps.www.myopenedx.com")
+LOGIN_REDIRECT_WHITELIST.append("apps.teak-demo.phd.opencraft.hosting")
+CORS_ORIGIN_WHITELIST.append("https://apps.teak-demo.phd.opencraft.hosting")
+CSRF_TRUSTED_ORIGINS.append("https://apps.teak-demo.phd.opencraft.hosting")
 
-COURSE_AUTHORING_MICROFRONTEND_URL = "http://studio.www.myopenedx.com/authoring"
+COURSE_AUTHORING_MICROFRONTEND_URL = "https://studio.teak-demo.phd.opencraft.hosting/authoring"
 ENABLE_COMPREHENSIVE_THEMING = True
 COMPREHENSIVE_THEME_DIRS.extend(['/openedx/themes/ednx-saas-themes/edx-platform', '/openedx/themes/ednx-saas-themes/edx-platform/bragi-children'])

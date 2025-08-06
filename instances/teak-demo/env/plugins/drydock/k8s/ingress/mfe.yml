@@ -4,13 +4,13 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress-mfe
-  namespace: openedx
+  namespace: teak-demo
   annotations:
     cert-manager.io/issuer: letsencrypt
 spec:
   ingressClassName: nginx
   rules:
-  - host: apps.www.myopenedx.com
+  - host: apps.teak-demo.phd.opencraft.hosting
     http:
       paths:
       - pathType: Prefix
@@ -22,5 +22,5 @@ spec:
               number: 80
   tls:
   - hosts:
-    - apps.www.myopenedx.com
+    - apps.teak-demo.phd.opencraft.hosting
     secretName: mfe-host-tls

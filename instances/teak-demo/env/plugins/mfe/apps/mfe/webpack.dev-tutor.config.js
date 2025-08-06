@@ -16,7 +16,7 @@ module.exports = merge(baseDevConfig, {
     allowedHosts: 'all',
     proxy: {
       '/api/mfe_config/v1': {
-        target: 'http://www.myopenedx.com:8000',
+        target: 'http://teak-demo.phd.opencraft.hosting:8000',
         changeOrigin: true,
       }
     }

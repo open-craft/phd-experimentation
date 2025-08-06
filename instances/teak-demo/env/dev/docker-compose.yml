@@ -22,7 +22,7 @@ services:
     networks:
       default:
         aliases:
-          - "www.myopenedx.com"
+          - "teak-demo.phd.opencraft.hosting"
 
   cms:
     <<: *openedx-service
@@ -38,7 +38,7 @@ services:
     networks:
       default:
         aliases:
-          - "meilisearch.www.myopenedx.com"
+          - "meilisearch.teak-demo.phd.opencraft.hosting"
 
   # Additional service for watching theme changes
   watchthemes:

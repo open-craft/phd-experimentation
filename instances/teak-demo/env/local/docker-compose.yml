@@ -48,12 +48,12 @@ services:
     volumes:
       - ../../data/mysql:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: "vNoCgqhF"
+      MYSQL_ROOT_PASSWORD: "8jNGouQN"
 
   meilisearch:
     image: docker.io/getmeili/meilisearch:v1.8.4
     environment:
-      MEILI_MASTER_KEY: "ZVYegk6MBr4SHqwDKfXPq9g2"
+      MEILI_MASTER_KEY: "hLLsD1WFaqS9V2DCNT5xjHKj"
     volumes:
       - ../../data/meilisearch:/meili_data
     restart: unless-stopped
@@ -78,12 +78,12 @@ services:
     restart: unless-stopped
     user: "100:101"
     environment:
-      HOSTNAME: "www.myopenedx.com"
+      HOSTNAME: "teak-demo.phd.opencraft.hosting"
 
   ############# LMS and CMS
 
   lms:
-    image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-g2x4lta0
+    image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-ia7o0t4b
     environment:
       SERVICE_VARIANT: lms
       DJANGO_SETTINGS_MODULE: lms.envs.tutor.production
@@ -107,7 +107,7 @@ services:
       
 
   cms:
-    image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-g2x4lta0
+    image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-ia7o0t4b
     environment:
       SERVICE_VARIANT: cms
       DJANGO_SETTINGS_MODULE: cms.envs.tutor.production

@@ -3,13 +3,13 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress-cms
-  namespace: openedx
+  namespace: teak-demo
   annotations:
     cert-manager.io/issuer: letsencrypt
 spec:
   ingressClassName: nginx
   rules:
-  - host: studio.www.myopenedx.com
+  - host: studio.teak-demo.phd.opencraft.hosting
     http:
       paths:
       - pathType: Prefix
@@ -35,5 +35,5 @@ spec:
               number: 80
   tls:
   - hosts:
-    - studio.www.myopenedx.com
+    - studio.teak-demo.phd.opencraft.hosting
     secretName: cms-host-tls

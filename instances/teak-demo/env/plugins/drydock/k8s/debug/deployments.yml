@@ -23,7 +23,7 @@ spec:
         - name: cms-debug
           args: [./manage.py cms runserver 0.0.0.0:8000]
           command: ["/bin/bash", "-c"]
-          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-g2x4lta0
+          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-ia7o0t4b
           env:
           - name: SERVICE_VARIANT
             value: cms
@@ -77,7 +77,7 @@ spec:
         - name: lms-debug
           args: [./manage.py lms runserver 0.0.0.0:8000]
           command: ["/bin/bash", "-c"]
-          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-g2x4lta0
+          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-ia7o0t4b
           ports:
             - containerPort: 8000
           volumeMounts:

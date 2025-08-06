@@ -3,17 +3,17 @@ apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: letsencrypt
-  namespace: openedx
+  namespace: teak-demo
   labels:
     app.kubernetes.io/name: letsencrypt
 spec:
   acme:
     # Let's Encrypt will use this to contact you about expiring
     # certificates, and issues related to your account.
-    email: contact@www.myopenedx.com
+    email: contact@teak-demo.phd.opencraft.hosting
     # Secret resource that will be used to store the account's private key.
     privateKeySecretRef:
-      name: openedx-letsencrypt-account-key
+      name: teak-demo-letsencrypt-account-key
     server: https://acme-v02.api.letsencrypt.org/directory
     solvers:
     - http01:

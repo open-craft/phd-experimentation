@@ -3,13 +3,13 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: meilisearch
-  namespace: openedx
+  namespace: teak-demo
   annotations:
     cert-manager.io/issuer: letsencrypt
 spec:
   ingressClassName: nginx
   rules:
-  - host: meilisearch.www.myopenedx.com
+  - host: meilisearch.teak-demo.phd.opencraft.hosting
     http:
       paths:
       - pathType: Prefix
@@ -21,5 +21,5 @@ spec:
               number: 80
   tls:
   - hosts:
-    - meilisearch.www.myopenedx.com
+    - meilisearch.teak-demo.phd.opencraft.hosting
     secretName: meilisearch-host-tls

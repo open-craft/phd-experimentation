@@ -41,10 +41,10 @@ DJANGO_REDIS_IGNORE_EXCEPTIONS = True
 # Meilisearch connection parameters
 MEILISEARCH_ENABLED = True
 MEILISEARCH_URL = "http://meilisearch:7700"
-MEILISEARCH_PUBLIC_URL = "http://meilisearch.www.myopenedx.com"
+MEILISEARCH_PUBLIC_URL = "https://meilisearch.teak-demo.phd.opencraft.hosting"
 MEILISEARCH_INDEX_PREFIX = "tutor_"
-MEILISEARCH_API_KEY = "6ff8ec4f48a8d3b6e52f5ca9e5b015bd20765c8a4c575eda0ae9493a5f979be5"
-MEILISEARCH_MASTER_KEY = "ZVYegk6MBr4SHqwDKfXPq9g2"
+MEILISEARCH_API_KEY = "593ffdc52300e02d8cb1403146ecb1b78b3a718d3ff1bd41a38c5cb245c1b210"
+MEILISEARCH_MASTER_KEY = "hLLsD1WFaqS9V2DCNT5xjHKj"
 SEARCH_ENGINE = "search.meilisearch.MeilisearchEngine"
 
 # Common cache config
@@ -95,7 +95,7 @@ CACHES = {
 SITE_ID = 2
 
 # Contact addresses
-CONTACT_MAILING_ADDRESS = "My Open edX - http://www.myopenedx.com"
+CONTACT_MAILING_ADDRESS = "Picasso Harmony Drydock Experimentation - https://teak-demo.phd.opencraft.hosting"
 DEFAULT_FROM_EMAIL = ENV_TOKENS.get("DEFAULT_FROM_EMAIL", ENV_TOKENS["CONTACT_EMAIL"])
 DEFAULT_FEEDBACK_EMAIL = ENV_TOKENS.get("DEFAULT_FEEDBACK_EMAIL", ENV_TOKENS["CONTACT_EMAIL"])
 SERVER_EMAIL = ENV_TOKENS.get("SERVER_EMAIL", ENV_TOKENS["CONTACT_EMAIL"])
@@ -179,21 +179,21 @@ LANGUAGE_COOKIE_NAME = "openedx-language-preference"
 X_FRAME_OPTIONS = "SAMEORIGIN"
 
 
-JWT_AUTH["JWT_ISSUER"] = "http://www.myopenedx.com/oauth2"
+JWT_AUTH["JWT_ISSUER"] = "https://teak-demo.phd.opencraft.hosting/oauth2"
 JWT_AUTH["JWT_AUDIENCE"] = "openedx"
-JWT_AUTH["JWT_SECRET_KEY"] = "7PFGSyjNZhnR4mlKCJpgkyB9"
+JWT_AUTH["JWT_SECRET_KEY"] = "QOx9aDCUAlVLsWIDQVUx2NUv"
 JWT_AUTH["JWT_PRIVATE_SIGNING_JWK"] = json.dumps(
     {
         "kid": "openedx",
         "kty": "RSA",
         "e": "AQAB",
-        "d": "FsFKL7S37qhmAbEA8sghOMd08t4e0L40BL2jDW-BLWMhTS13860SaFuG39yFjgh2NB03p8T1mNAztCzZquBUtk7r0A77v77Mhv6fADELVfLglwsspIt1F_Ae-WasaB7N2Xe3daaNqIa4_vOjUJ9JGbEnO7GR9RIaEdrLH-238Z28KFcOfDHiDXMceYn6XJa3gwv47thWWt5oG0JhDXLa8XQPY9AfV6ygOfEINaqYWLmM5la4Xu24Sq1DqvGbNXKOdwaDLQYZO-cOOzONuY5gO-_2T9CSU5i1V5fQzYOAMMDYrKqjFf3_t4zYEkW2-QEb-QFevCcoireZWguWk5I7MQ",
-        "n": "wFN-WV56RIzuToslskByIW8N4IntV4YiCW5UfQOV_Axe1HIBfY7CtHWCQgKwHxnTYedt11h1uYn0ZB7UvbSUZDjbL_bhpmovmeOKbTdAen5Vgb31jtO_ZvtGowR71VF7Bg97Uu9Ff-ndMPMRHEfl4lxXUfhlHR8Sa8pIl16eDg-HU1w494B5B1tWPF75Oq8eUfDI2SnOYlWgANGuCxM2xWQQhUzY75hvdEYH7kI-No-hS2QihxddmgO9HiUMv_xCqMQXuiE_jgfSr4LlPOmjMHEmu6msiibY6Ate50QAYQMHBlCbQpSsNE14dVb3zrBqiQbIdK_E2_0VidrETGh25w",
-        "p": "0vshFCvH6MAuEmRqRNC2EP3cMMETxZkOIq1dI0NYnMEcJV83VtqaxpJ9IyFVu5IV5z8j3bydNx-aMdfC7eiYlWgshvMe6CeO9misoXW1bq8OE_B2kiQfgH6u07R2ONz2-oJcu7RBf378gavu06pJIBS0SdDJsGHlMQ_QoBBvdr0",
-        "q": "6V1XYKTiBcSpiWsOhqLbAUCvPPHxz12wxqF8uDb-RRdlidL3wZwn_Q1SwqPCpYds7eKqF5JZKSwdZkqASpWyY0_g_BeXGXa0vuJ6Ud88VXG7Nz_6ccBS_Dke_YTvh9qlD2_WCSJlNebBKYb8vA3zTyOFzxS_j7Geylck_tKgoHM",
-        "dq": "au1vFQRX4Ea9XA7myAAlE0zdPrKplteaIVlrOUlRdr0CtIUrKtZvaD7Llg3NKWWFHvcF8ukG25uwGOe4IvS2mVTHhRsWC__dT72cSJleHtSO8QDqs2ZpX9KYhZd83aXsjcczrlnJQEpsZafJdC18N93R-RHLuH6tgI8vj2dZXEs",
-        "dp": "EdaDvHXbKBWfj5SH25ud2R_tjv20Ez_Wjx4DQuj9w_sbyxkaz7AZ5_IYvHCkFADM80lGWggJbtCwM8ifRYgl5nPxV9OUaGJ31uOQvPH7zgjk8tCg5chCFZYgZ-vZFwOvqgx9lK0v4Hy3EqubvK-oERtPBvKtKsmMHDLPG8ln8y0",
-        "qi": "cSOV7lBJY5gIW-xLWyuZuaiv4oqDvrqdX7Oel3mExTqmfBQ3DGgZ0_pzWLPCmPfwRbcuW-FcyB0_exn2QvxHKKi4-mV4FM0AA7PN1wIaP80cTNcD_ceZDCkC5R9uvH93pOg84sJQwiXKyZi9bBFOcLgO2brM5vst1EYVhiHRFA0",
+        "d": "AdxmGi66y6-6lXHKAfC0c8vIAoKNsPI0tnvmTczP3TaOCIWWl9AXLUqx-5WUHY_WVQAqUKfWtyjIbBZzeX0KrsnhBgJtqGEryJPgp9LLGT4AAnL1qZ4kgHo_L_4sm-Ed4vg4EL4_NHaduGCsmHNFHLN9E-1775u2KoBKGP7eb31y_xX3AKWVbZS7QSLAuz3BkwIJ6-ln3gzsajySRrtEgMSDl_1G6_MywUr0mrLQGJXUpPOYxyxecYR8Auocp0SnLwhb1mFMsMmW2V93Fw7HujDjh1RY0fM8zFQDu7x0M0Lvrfu3wSyRQeTNrZNTGoUQekoAP46Kg1jiwEciccBcVw",
+        "n": "scr3shauowiY5p__ANm-oPwCTFE7ljkFfqFKcKYe_BBJ5YLZGdgKEdc_-6gQABT1ekIMknMh8poGBbmNKE-t1WRB48GG9otDUV34f8aSx1-LiAsWmEQQ2eCmomaODvMpa27KQhKdlGDNCBJGze3ZQGBmr0nUWH11eXI8HcS_gkVmoOgAr8_lmbDm-DmTdn7ZgGRkYz5bbttbrRw819Re0ugFLfVVS_E8EbxX-Sux_CwWqNy9EuspcKL961kBy6SA05So0FxZMBwfIGFJggG9Zyb_ztZs3RYr_vA4W3bctK1qZvxosLiJ-JW7S8VW8V8DoF4w2jyCDLVmyLo7KSN63Q",
+        "p": "xtTGDnAu5GJm3Z6H9dgMS-CDCLc9-xC8PsyS7xK1ZLmyPiGfBwBrw5TJZGkhmnd6LPYDyfbKSvcw5K_ynYroUET0tK-QnMBiYIy_XNTeju7by94QKtzTcGSdiHtvAJGbLnolx8g7NE8x4fgtf8uZDiD9seUZpfKSvYTOMS0VdYc",
+        "q": "5OmkWGZ_B0ZhpYhdjzDejOQ7hg9_br1W9K-z1-OFJSbzI5_Y-FZ_koDQW3Pk37OLxg14DpNowLX66fLRLMp6tjQ1Xhnte-QLvADZZS9oB4GuCvHA_VviOAB5c5j0PbjVZnZTIzGj5h2OQShTh0q7TIgkfzjc3zQ45FGJXsFMpXs",
+        "dq": "S3zxAWXrhg6jrN7nW40WFwg8yNzbfT1bK521hQA2rCXIEHtqJZsAvuNT0pTJaSvgcBOI_-WEqehZMkUszcSH6wYUg0-xjSWK6RiumDul5rPRHTLUHbjrROSDKKfMA36sgPmMORLppb0haENQKFFwqrBKuNmbnM-v4zswPdso13k",
+        "dp": "HijmRghkRIZcnh9O9k6oRtYuaiMJhszaERiM7TDETRwR2nTVH4XD0u39wnpj-39GDA3hM0B5HPfz9axuu9D3Pj3HdKTw5aYVBhozaMxtWfcHZhwwDaBjfjf04V__zXFIvbsPggdwW5XrtiAkHq9ubwM4GETtKAvskEzVzgXNrH8",
+        "qi": "LMixnTzc_ntHDW3OXpc5vhonRkpjzHFlKXkEc4Yh9gZxLF600jYNxeiRQBEKUOir3BHp1Pk7SJgtEaX2y5EE25OmSO2VeAahJYJUdZR3wJMArsc8D_zGzGEHfGuuUO1_hFbnhdP-Lvk2iPbxx2AAUecRS3KIkxHi2Nofq8-UrqM",
     }
 )
 JWT_AUTH["JWT_PUBLIC_SIGNING_JWK_SET"] = json.dumps(
@@ -203,16 +203,16 @@ JWT_AUTH["JWT_PUBLIC_SIGNING_JWK_SET"] = json.dumps(
                 "kid": "openedx",
                 "kty": "RSA",
                 "e": "AQAB",
-                "n": "wFN-WV56RIzuToslskByIW8N4IntV4YiCW5UfQOV_Axe1HIBfY7CtHWCQgKwHxnTYedt11h1uYn0ZB7UvbSUZDjbL_bhpmovmeOKbTdAen5Vgb31jtO_ZvtGowR71VF7Bg97Uu9Ff-ndMPMRHEfl4lxXUfhlHR8Sa8pIl16eDg-HU1w494B5B1tWPF75Oq8eUfDI2SnOYlWgANGuCxM2xWQQhUzY75hvdEYH7kI-No-hS2QihxddmgO9HiUMv_xCqMQXuiE_jgfSr4LlPOmjMHEmu6msiibY6Ate50QAYQMHBlCbQpSsNE14dVb3zrBqiQbIdK_E2_0VidrETGh25w",
+                "n": "scr3shauowiY5p__ANm-oPwCTFE7ljkFfqFKcKYe_BBJ5YLZGdgKEdc_-6gQABT1ekIMknMh8poGBbmNKE-t1WRB48GG9otDUV34f8aSx1-LiAsWmEQQ2eCmomaODvMpa27KQhKdlGDNCBJGze3ZQGBmr0nUWH11eXI8HcS_gkVmoOgAr8_lmbDm-DmTdn7ZgGRkYz5bbttbrRw819Re0ugFLfVVS_E8EbxX-Sux_CwWqNy9EuspcKL961kBy6SA05So0FxZMBwfIGFJggG9Zyb_ztZs3RYr_vA4W3bctK1qZvxosLiJ-JW7S8VW8V8DoF4w2jyCDLVmyLo7KSN63Q",
             }
         ]
     }
 )
 JWT_AUTH["JWT_ISSUERS"] = [
     {
-        "ISSUER": "http://www.myopenedx.com/oauth2",
+        "ISSUER": "https://teak-demo.phd.opencraft.hosting/oauth2",
         "AUDIENCE": "openedx",
-        "SECRET_KEY": "7PFGSyjNZhnR4mlKCJpgkyB9"
+        "SECRET_KEY": "QOx9aDCUAlVLsWIDQVUx2NUv"
     }
 ]
 
@@ -224,7 +224,7 @@ FEATURES["ENABLE_CORS_HEADERS"] = True
 # CORS
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = False
-CORS_ALLOW_INSECURE = True
+CORS_ALLOW_INSECURE = False
 # Note: CORS_ALLOW_HEADERS is intentionally not defined here, because it should
 # be consistent across deployments, and is therefore set in edx-platform.
 
@@ -369,7 +369,7 @@ FORUM_MONGODB_DATABASE = "cs_comments_service"
 ######## End of settings common to LMS and CMS
 
 ######## Common LMS settings
-LOGIN_REDIRECT_WHITELIST = ["studio.www.myopenedx.com"]
+LOGIN_REDIRECT_WHITELIST = ["studio.teak-demo.phd.opencraft.hosting"]
 
 # Better layout of honor code/tos links during registration
 REGISTRATION_EXTRA_FIELDS["terms_of_service"] = "hidden"
@@ -437,24 +437,24 @@ LEARNER_HOME_MFE_REDIRECT_PERCENTAGE = 100
 # Setup correct webpack configuration file for development
 WEBPACK_CONFIG_PATH = "webpack.dev.config.js"
 
-LMS_BASE = "www.myopenedx.com:8000"
+LMS_BASE = "teak-demo.phd.opencraft.hosting:8000"
 LMS_ROOT_URL = "http://{}".format(LMS_BASE)
 LMS_INTERNAL_ROOT_URL = LMS_ROOT_URL
 SITE_NAME = LMS_BASE
-CMS_BASE = "studio.www.myopenedx.com:8001"
+CMS_BASE = "studio.teak-demo.phd.opencraft.hosting:8001"
 CMS_ROOT_URL = "http://{}".format(CMS_BASE)
 LOGIN_REDIRECT_WHITELIST.append(CMS_BASE)
 
-MEILISEARCH_PUBLIC_URL = "http://meilisearch.www.myopenedx.com:7700"
+MEILISEARCH_PUBLIC_URL = "https://meilisearch.teak-demo.phd.opencraft.hosting:7700"
 
 # Session cookie
-SESSION_COOKIE_DOMAIN = "www.myopenedx.com"
+SESSION_COOKIE_DOMAIN = "teak-demo.phd.opencraft.hosting"
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SAMESITE = "Lax"
 
 # CMS authentication
-IDA_LOGOUT_URI_LIST.append("http://studio.www.myopenedx.com:8001/logout/")
+IDA_LOGOUT_URI_LIST.append("http://studio.teak-demo.phd.opencraft.hosting:8001/logout/")
 
 FEATURES["ENABLE_COURSEWARE_MICROFRONTEND"] = False
 
@@ -472,42 +472,42 @@ COMPREHENSIVE_THEME_DIRS.extend(['/openedx/themes/ednx-saas-themes/edx-platform'
 # Dynamic config API settings
 # https://openedx.github.io/frontend-platform/module-Config.html
 MFE_CONFIG = {
-    "BASE_URL": "apps.www.myopenedx.com",
+    "BASE_URL": "apps.teak-demo.phd.opencraft.hosting",
     "CSRF_TOKEN_API_PATH": "/csrf/api/v1/token",
     "CREDENTIALS_BASE_URL": "",
     "DISCOVERY_API_BASE_URL": "",
-    "FAVICON_URL": "http://www.myopenedx.com/favicon.ico",
-    "INFO_EMAIL": "contact@www.myopenedx.com",
+    "FAVICON_URL": "http://teak-demo.phd.opencraft.hosting/favicon.ico",
+    "INFO_EMAIL": "contact@teak-demo.phd.opencraft.hosting",
     "LANGUAGE_PREFERENCE_COOKIE_NAME": "openedx-language-preference",
-    "LMS_BASE_URL": "http://www.myopenedx.com:8000",
-    "LOGIN_URL": "http://www.myopenedx.com:8000/login",
-    "LOGO_URL": "http://www.myopenedx.com:8000/theming/asset/images/logo.png",
-    "LOGO_WHITE_URL": "http://www.myopenedx.com:8000/theming/asset/images/logo.png",
-    "LOGO_TRADEMARK_URL": "http://www.myopenedx.com:8000/theming/asset/images/logo.png",
-    "LOGOUT_URL": "http://www.myopenedx.com:8000/logout",
-    "MARKETING_SITE_BASE_URL": "http://www.myopenedx.com:8000",
-    "PASSWORD_RESET_SUPPORT_LINK": "mailto:contact@www.myopenedx.com",
-    "REFRESH_ACCESS_TOKEN_ENDPOINT": "http://www.myopenedx.com:8000/login_refresh",
-    "SITE_NAME": "My Open edX",
-    "STUDIO_BASE_URL": "http://studio.www.myopenedx.com:8001",
+    "LMS_BASE_URL": "http://teak-demo.phd.opencraft.hosting:8000",
+    "LOGIN_URL": "http://teak-demo.phd.opencraft.hosting:8000/login",
+    "LOGO_URL": "http://teak-demo.phd.opencraft.hosting:8000/theming/asset/images/logo.png",
+    "LOGO_WHITE_URL": "http://teak-demo.phd.opencraft.hosting:8000/theming/asset/images/logo.png",
+    "LOGO_TRADEMARK_URL": "http://teak-demo.phd.opencraft.hosting:8000/theming/asset/images/logo.png",
+    "LOGOUT_URL": "http://teak-demo.phd.opencraft.hosting:8000/logout",
+    "MARKETING_SITE_BASE_URL": "http://teak-demo.phd.opencraft.hosting:8000",
+    "PASSWORD_RESET_SUPPORT_LINK": "mailto:contact@teak-demo.phd.opencraft.hosting",
+    "REFRESH_ACCESS_TOKEN_ENDPOINT": "http://teak-demo.phd.opencraft.hosting:8000/login_refresh",
+    "SITE_NAME": "Picasso Harmony Drydock Experimentation",
+    "STUDIO_BASE_URL": "http://studio.teak-demo.phd.opencraft.hosting:8001",
     "USER_INFO_COOKIE_NAME": "user-info",
     "ACCESS_TOKEN_COOKIE_NAME": "edx-jwt-cookie-header-payload",
 }
 
 # MFE-specific settings
 
-AUTHN_MICROFRONTEND_URL = "http://apps.www.myopenedx.com:1999/authn"
-AUTHN_MICROFRONTEND_DOMAIN  = "apps.www.myopenedx.com/authn"
+AUTHN_MICROFRONTEND_URL = "http://apps.teak-demo.phd.opencraft.hosting:1999/authn"
+AUTHN_MICROFRONTEND_DOMAIN  = "apps.teak-demo.phd.opencraft.hosting/authn"
 MFE_CONFIG["DISABLE_ENTERPRISE_LOGIN"] = True
 
 
 
-ACCOUNT_MICROFRONTEND_URL = "http://apps.www.myopenedx.com:1997/account/"
+ACCOUNT_MICROFRONTEND_URL = "http://apps.teak-demo.phd.opencraft.hosting:1997/account/"
 MFE_CONFIG["ACCOUNT_SETTINGS_URL"] = ACCOUNT_MICROFRONTEND_URL
 
 
 
-MFE_CONFIG["COURSE_AUTHORING_MICROFRONTEND_URL"] = "http://apps.www.myopenedx.com:2001/authoring"
+MFE_CONFIG["COURSE_AUTHORING_MICROFRONTEND_URL"] = "http://apps.teak-demo.phd.opencraft.hosting:2001/authoring"
 MFE_CONFIG["ENABLE_ASSETS_PAGE"] = "true"
 MFE_CONFIG["ENABLE_HOME_PAGE_COURSE_API_V2"] = "true"
 MFE_CONFIG["ENABLE_PROGRESS_GRAPH_SETTINGS"] = "true"
@@ -517,89 +517,89 @@ MFE_CONFIG["MEILISEARCH_ENABLED"] = "true"
 
 
 
-DISCUSSIONS_MICROFRONTEND_URL = "http://apps.www.myopenedx.com:2002/discussions"
+DISCUSSIONS_MICROFRONTEND_URL = "http://apps.teak-demo.phd.opencraft.hosting:2002/discussions"
 MFE_CONFIG["DISCUSSIONS_MFE_BASE_URL"] = DISCUSSIONS_MICROFRONTEND_URL
 DISCUSSIONS_MFE_FEEDBACK_URL = None
 
 
 
-WRITABLE_GRADEBOOK_URL = "http://apps.www.myopenedx.com:1994/gradebook"
+WRITABLE_GRADEBOOK_URL = "http://apps.teak-demo.phd.opencraft.hosting:1994/gradebook"
 
 
 
-LEARNER_HOME_MICROFRONTEND_URL = "http://apps.www.myopenedx.com:1996/learner-dashboard/"
+LEARNER_HOME_MICROFRONTEND_URL = "http://apps.teak-demo.phd.opencraft.hosting:1996/learner-dashboard/"
 
 
 
-LEARNING_MICROFRONTEND_URL = "http://apps.www.myopenedx.com:2000/learning"
-MFE_CONFIG["LEARNING_BASE_URL"] = "http://apps.www.myopenedx.com:2000"
+LEARNING_MICROFRONTEND_URL = "http://apps.teak-demo.phd.opencraft.hosting:2000/learning"
+MFE_CONFIG["LEARNING_BASE_URL"] = "http://apps.teak-demo.phd.opencraft.hosting:2000"
 
 
 
-ORA_GRADING_MICROFRONTEND_URL = "http://apps.www.myopenedx.com:1993/ora-grading"
+ORA_GRADING_MICROFRONTEND_URL = "http://apps.teak-demo.phd.opencraft.hosting:1993/ora-grading"
 
 
 
-PROFILE_MICROFRONTEND_URL = "http://apps.www.myopenedx.com:1995/profile/u/"
-MFE_CONFIG["ACCOUNT_PROFILE_URL"] = "http://apps.www.myopenedx.com:1995/profile"
+PROFILE_MICROFRONTEND_URL = "http://apps.teak-demo.phd.opencraft.hosting:1995/profile/u/"
+MFE_CONFIG["ACCOUNT_PROFILE_URL"] = "http://apps.teak-demo.phd.opencraft.hosting:1995/profile"
 
 
 
-COMMUNICATIONS_MICROFRONTEND_URL = "http://apps.www.myopenedx.com:1984/communications"
+COMMUNICATIONS_MICROFRONTEND_URL = "http://apps.teak-demo.phd.opencraft.hosting:1984/communications"
 MFE_CONFIG["SCHEDULE_EMAIL_SECTION"] = True
 
 
 # Cors configuration
 
 # authn MFE
-CORS_ORIGIN_WHITELIST.append("http://apps.www.myopenedx.com:1999")
-LOGIN_REDIRECT_WHITELIST.append("apps.www.myopenedx.com:1999")
-CSRF_TRUSTED_ORIGINS.append("http://apps.www.myopenedx.com:1999")
+CORS_ORIGIN_WHITELIST.append("http://apps.teak-demo.phd.opencraft.hosting:1999")
+LOGIN_REDIRECT_WHITELIST.append("apps.teak-demo.phd.opencraft.hosting:1999")
+CSRF_TRUSTED_ORIGINS.append("http://apps.teak-demo.phd.opencraft.hosting:1999")
 
 # authoring MFE
-CORS_ORIGIN_WHITELIST.append("http://apps.www.myopenedx.com:2001")
-LOGIN_REDIRECT_WHITELIST.append("apps.www.myopenedx.com:2001")
-CSRF_TRUSTED_ORIGINS.append("http://apps.www.myopenedx.com:2001")
+CORS_ORIGIN_WHITELIST.append("http://apps.teak-demo.phd.opencraft.hosting:2001")
+LOGIN_REDIRECT_WHITELIST.append("apps.teak-demo.phd.opencraft.hosting:2001")
+CSRF_TRUSTED_ORIGINS.append("http://apps.teak-demo.phd.opencraft.hosting:2001")
 
 # account MFE
-CORS_ORIGIN_WHITELIST.append("http://apps.www.myopenedx.com:1997")
-LOGIN_REDIRECT_WHITELIST.append("apps.www.myopenedx.com:1997")
-CSRF_TRUSTED_ORIGINS.append("http://apps.www.myopenedx.com:1997")
+CORS_ORIGIN_WHITELIST.append("http://apps.teak-demo.phd.opencraft.hosting:1997")
+LOGIN_REDIRECT_WHITELIST.append("apps.teak-demo.phd.opencraft.hosting:1997")
+CSRF_TRUSTED_ORIGINS.append("http://apps.teak-demo.phd.opencraft.hosting:1997")
 
 # communications MFE
-CORS_ORIGIN_WHITELIST.append("http://apps.www.myopenedx.com:1984")
-LOGIN_REDIRECT_WHITELIST.append("apps.www.myopenedx.com:1984")
-CSRF_TRUSTED_ORIGINS.append("http://apps.www.myopenedx.com:1984")
+CORS_ORIGIN_WHITELIST.append("http://apps.teak-demo.phd.opencraft.hosting:1984")
+LOGIN_REDIRECT_WHITELIST.append("apps.teak-demo.phd.opencraft.hosting:1984")
+CSRF_TRUSTED_ORIGINS.append("http://apps.teak-demo.phd.opencraft.hosting:1984")
 
 # discussions MFE
-CORS_ORIGIN_WHITELIST.append("http://apps.www.myopenedx.com:2002")
-LOGIN_REDIRECT_WHITELIST.append("apps.www.myopenedx.com:2002")
-CSRF_TRUSTED_ORIGINS.append("http://apps.www.myopenedx.com:2002")
+CORS_ORIGIN_WHITELIST.append("http://apps.teak-demo.phd.opencraft.hosting:2002")
+LOGIN_REDIRECT_WHITELIST.append("apps.teak-demo.phd.opencraft.hosting:2002")
+CSRF_TRUSTED_ORIGINS.append("http://apps.teak-demo.phd.opencraft.hosting:2002")
 
 # gradebook MFE
-CORS_ORIGIN_WHITELIST.append("http://apps.www.myopenedx.com:1994")
-LOGIN_REDIRECT_WHITELIST.append("apps.www.myopenedx.com:1994")
-CSRF_TRUSTED_ORIGINS.append("http://apps.www.myopenedx.com:1994")
+CORS_ORIGIN_WHITELIST.append("http://apps.teak-demo.phd.opencraft.hosting:1994")
+LOGIN_REDIRECT_WHITELIST.append("apps.teak-demo.phd.opencraft.hosting:1994")
+CSRF_TRUSTED_ORIGINS.append("http://apps.teak-demo.phd.opencraft.hosting:1994")
 
 # learner-dashboard MFE
-CORS_ORIGIN_WHITELIST.append("http://apps.www.myopenedx.com:1996")
-LOGIN_REDIRECT_WHITELIST.append("apps.www.myopenedx.com:1996")
-CSRF_TRUSTED_ORIGINS.append("http://apps.www.myopenedx.com:1996")
+CORS_ORIGIN_WHITELIST.append("http://apps.teak-demo.phd.opencraft.hosting:1996")
+LOGIN_REDIRECT_WHITELIST.append("apps.teak-demo.phd.opencraft.hosting:1996")
+CSRF_TRUSTED_ORIGINS.append("http://apps.teak-demo.phd.opencraft.hosting:1996")
 
 # learning MFE
-CORS_ORIGIN_WHITELIST.append("http://apps.www.myopenedx.com:2000")
-LOGIN_REDIRECT_WHITELIST.append("apps.www.myopenedx.com:2000")
-CSRF_TRUSTED_ORIGINS.append("http://apps.www.myopenedx.com:2000")
+CORS_ORIGIN_WHITELIST.append("http://apps.teak-demo.phd.opencraft.hosting:2000")
+LOGIN_REDIRECT_WHITELIST.append("apps.teak-demo.phd.opencraft.hosting:2000")
+CSRF_TRUSTED_ORIGINS.append("http://apps.teak-demo.phd.opencraft.hosting:2000")
 
 # ora-grading MFE
-CORS_ORIGIN_WHITELIST.append("http://apps.www.myopenedx.com:1993")
-LOGIN_REDIRECT_WHITELIST.append("apps.www.myopenedx.com:1993")
-CSRF_TRUSTED_ORIGINS.append("http://apps.www.myopenedx.com:1993")
+CORS_ORIGIN_WHITELIST.append("http://apps.teak-demo.phd.opencraft.hosting:1993")
+LOGIN_REDIRECT_WHITELIST.append("apps.teak-demo.phd.opencraft.hosting:1993")
+CSRF_TRUSTED_ORIGINS.append("http://apps.teak-demo.phd.opencraft.hosting:1993")
 
 # profile MFE
-CORS_ORIGIN_WHITELIST.append("http://apps.www.myopenedx.com:1995")
-LOGIN_REDIRECT_WHITELIST.append("apps.www.myopenedx.com:1995")
-CSRF_TRUSTED_ORIGINS.append("http://apps.www.myopenedx.com:1995")
+CORS_ORIGIN_WHITELIST.append("http://apps.teak-demo.phd.opencraft.hosting:1995")
+LOGIN_REDIRECT_WHITELIST.append("apps.teak-demo.phd.opencraft.hosting:1995")
+CSRF_TRUSTED_ORIGINS.append("http://apps.teak-demo.phd.opencraft.hosting:1995")
 
 
 

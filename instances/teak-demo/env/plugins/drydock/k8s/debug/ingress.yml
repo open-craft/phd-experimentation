@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress-debug
-  namespace: openedx
+  namespace: teak-demo
   annotations:
     argocd.argoproj.io/sync-wave: "200"
     kubernetes.io/ingress.class: nginx
@@ -11,7 +11,7 @@ metadata:
     cert-manager.io/issuer: letsencrypt
 spec:
   rules:
-  - host: www.myopenedx.com
+  - host: teak-demo.phd.opencraft.hosting
     http:
       paths:
       - backend:
@@ -21,7 +21,7 @@ spec:
               number: 8000
         path: /
         pathType: Prefix
-  - host: studio.www.myopenedx.com
+  - host: studio.teak-demo.phd.opencraft.hosting
     http:
       paths:
       - backend:
@@ -33,6 +33,6 @@ spec:
         pathType: Prefix
   tls:
   - hosts:
-    - www.myopenedx.com
-    - studio.www.myopenedx.com
-    secretName: openedx-tls
+    - teak-demo.phd.opencraft.hosting
+    - studio.teak-demo.phd.opencraft.hosting
+    secretName: teak-demo-tls
