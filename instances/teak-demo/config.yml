@@ -1,9 +1,10 @@
 DOCKER_IMAGE_OPENEDX: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250805-pfxsgwaj
 DOCKER_IMAGE_OPENEDX_DEV: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:teak-demo-dev
 DOCKER_REGISTRY: 466538543953.dkr.ecr.eu-central-1.amazonaws.com
+DRYDOCK_INIT_JOBS: true
 EDX_PLATFORM_REPOSITORY: https://github.com/openedx/edx-platform.git
 EDX_PLATFORM_VERSION: release/teak
-MFE_DOCKER_IMAGE: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:teak-demo-mfe
+MFE_DOCKER_IMAGE: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-zg88x7ol
 OPENEDX_EXTRA_PIP_REQUIREMENTS:
 - git+https://github.com/eduNEXT/eox-tenant@v14.0.0
 - cssselect==1.2.0
@@ -33,4 +34,3 @@ PICASSO_THEME_DIRS:
 - /openedx/themes/ednx-saas-themes/edx-platform/bragi-children
 TUTOR_APP_NAME: teak-demo
 TUTOR_VERSION: v20.0.0
-DRYDOCK_INIT_JOBS: true
