@@ -11,7 +11,7 @@ ENABLE_HTTPS: true
 ENABLE_WEB_PROXY: false
 K8S_NAMESPACE: teak-demo
 LMS_HOST: teak-demo.phd.opencraft.hosting
-MFE_DOCKER_IMAGE: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-er3gyoiz
+MFE_DOCKER_IMAGE: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-wiar5b7w
 OPENEDX_EXTRA_PIP_REQUIREMENTS:
 - git+https://github.com/eduNEXT/eox-tenant@v14.0.0
 - cssselect==1.2.0
