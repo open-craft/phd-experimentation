@@ -19,6 +19,7 @@ resources:
 - plugins/drydock/k8s/ingress/extra-hosts.yml
 - plugins/drydock/k8s/ingress/static-cache.yml
 
+- plugins/drydock/k8s/secrets/image-pull-secret.yml
 
 
 # namespace to deploy all Resources to
@@ -33,7 +34,7 @@ commonAnnotations:
 # https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/
 # https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/commonlabels/
 commonLabels:
-  app.kubernetes.io/instance: openedx-sHDDf9oqATAwVKiMqhjjNmit
+  app.kubernetes.io/instance: openedx-zSbUt7bYuWecTaIRxZ9HjZDi
   app.kubernetes.io/part-of: openedx
   app.kubernetes.io/managed-by: tutor
   
@@ -95,6 +96,15 @@ patchesStrategicMerge:
 patches:
 - path: plugins/drydock/k8s/lifecycle/lms.yml
 - path: plugins/drydock/k8s/lifecycle/cms.yml
+- target:
+    kind: Deployment
+  path: plugins/drydock/k8s/patches/add-image-pull-secret.yml
+- target:
+    kind: Job
+  path: plugins/drydock/k8s/patches/add-image-pull-secret.yml
+- target:
+    kind: CronJob
+  path: plugins/drydock/k8s/patches/add-image-pull-secret-cronjob.yml
 - target:
     kind: Job
     labelSelector: app.kubernetes.io/component=job

@@ -70,7 +70,7 @@ spec:
         runAsGroup: 1000
       containers:
         - name: cms
-          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250805-pfxsgwaj
+          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-g2x4lta0
           env:
           - name: SERVICE_VARIANT
             value: cms
@@ -132,7 +132,7 @@ spec:
         runAsGroup: 1000
       containers:
         - name: cms-worker
-          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250805-pfxsgwaj
+          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-g2x4lta0
           args:
           
           - "celery"
@@ -190,7 +190,7 @@ spec:
         runAsGroup: 1000
       containers:
         - name: lms
-          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250805-pfxsgwaj
+          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-g2x4lta0
           env:
           - name: SERVICE_VARIANT
             value: lms
@@ -252,7 +252,7 @@ spec:
         runAsGroup: 1000
       containers:
         - name: lms-worker
-          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250805-pfxsgwaj
+          image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-g2x4lta0
           args: 
           - "celery"
           - "--app=lms.celery"
@@ -317,7 +317,7 @@ spec:
           image: docker.io/getmeili/meilisearch:v1.8.4
           env:
             - name: MEILI_MASTER_KEY
-              value: "8lYVhoaEyYZc9AFvOLTqgIT6"
+              value: "DmciFhqv3IDZNuQx2PCNmzDM"
           ports:
             - containerPort: 7700
           securityContext:
@@ -405,7 +405,7 @@ spec:
             - "--mysql-native-password=ON"
           env:
             - name: MYSQL_ROOT_PASSWORD
-              value: "KDiAoZMj"
+              value: "TAkyTjIU"
           ports:
             - containerPort: 3306
           volumeMounts:
