@@ -43,8 +43,8 @@ MEILISEARCH_ENABLED = True
 MEILISEARCH_URL = "http://meilisearch:7700"
 MEILISEARCH_PUBLIC_URL = "http://meilisearch.www.myopenedx.com"
 MEILISEARCH_INDEX_PREFIX = "tutor_"
-MEILISEARCH_API_KEY = "af0bb89be027c1e35962accde72bf158f3c4d6bed8158e48dda262f6035f0d4b"
-MEILISEARCH_MASTER_KEY = "OWGGkvUclXbWTQMqbWpMQf9j"
+MEILISEARCH_API_KEY = "942b892f4eace82a8ef79cb2752ee3b078eb3efba5c7bbcd8b468791cc3ff040"
+MEILISEARCH_MASTER_KEY = "8lYVhoaEyYZc9AFvOLTqgIT6"
 SEARCH_ENGINE = "search.meilisearch.MeilisearchEngine"
 
 # Common cache config
@@ -181,19 +181,19 @@ X_FRAME_OPTIONS = "SAMEORIGIN"
 
 JWT_AUTH["JWT_ISSUER"] = "http://www.myopenedx.com/oauth2"
 JWT_AUTH["JWT_AUDIENCE"] = "openedx"
-JWT_AUTH["JWT_SECRET_KEY"] = "JwTlRUcLIWFm9Uz9K9NinH3I"
+JWT_AUTH["JWT_SECRET_KEY"] = "tJgTu8nPQWQ8tcjhKi33gP1J"
 JWT_AUTH["JWT_PRIVATE_SIGNING_JWK"] = json.dumps(
     {
         "kid": "openedx",
         "kty": "RSA",
         "e": "AQAB",
-        "d": "Pzz_ODc-zE2TXxJ5PVcJ5zgnevSrtVlUDKe8xr1E-UCMxxfEZWyXnuQxnPq-riNDkoIYDqeizqaFei4SNOmbJRwuwYoShao5WlS-8IOyzYLjb8AZ9LsQqMlRb6nRQ3ykHJLdv2ixpF4rbx-TNOdohAdLbxzOBjPkk1EzLyr3UTE986DyOZ9YD0YAXNHzic1Jq_feLZw-B0Sqp6C1Rkcq4HvbxOoSKLbWM71KmyeUIUoiEgDCmuzxo02RY9sz2eif1l_F8kg95tv4wtZKmnMn_zvF3LvRY0LTS6rjbLdvTZz0isGQLO-6k7cueA_0oXrQtEjeKanX_U61sCM9EWHVYQ",
-        "n": "qB45SzWy292aXNtod3d_YS3i31o_qFLXerOgR7dYwHZdCrj237wtz7BrA73-A-y-eJpMr_Pi0oeKXv5CaLdEZm0elwqiaWPjopoz-jZIiczAbrHNH9QxDhob7ILFnF6esEcN8F2OEluhmNmvNpEbk1WFh2AhmBdfkjuiIKE8UK3qrOnwplKn6McPk4vDPdVel5utYaYDI33t0sBGn5J4XF0MrpPEFS2MH-eeRgTlAgAM-x3bpZbk6XAtlNvoiX2GWa0hCDIgBq3AfoHyFxmqicXOV-UT13ETOd3gDLEgfBDgXxviZ8m5pkXOq5Rc0XLvsbBHb1hvnLLVrgGWpTjnew",
-        "p": "wNUHBpsCmb4i00XGj9gZAXOcf0mREYZ2zhO3oGfViPXWs9b9Fs-A1-uf6d2FkIsDCS0x5hmvRO69oAiMs0SC0jP74yj8Wtr7hfO8nymzul9tXoFNBc21918qgdgH5hL57npFedCOp0eHQiC52Ckez7jWSc_Y4YOr5QXwqH-gzOc",
-        "q": "3zCqPKMTuXFmuKPQPwfZ0eQ4OzRtYeVxRpTWa5OIazrBs9gmqGzAciG3wB4JyMNFQadDBFZd4NwCTJFJr8EMjAgfBhs1xK57B0E3ahkT_9eP66iNW4Qu7q0m780ePbkBp6sJOIvu7_DQ4t3dANeFkwAv_a4JXJfQs5t4blPLyk0",
-        "dq": "dli4vESAzgFaxadfYjzIfGp2grZPFezy_sknVY26dZmHYtTH0uEvvpUweTe0WndovuJxP9iIGRawRWd42jAUdiBMSxGcljkq1XL4blLz7uKf1wbeRdu2gyrfjaKHWZVDUmP4FLrmrOZV7SZV7P9bPdKIoAxrvGRn7wUOe_oFArU",
-        "dp": "AzjL-EFIxtbVcCA_VBHxQQP0fm_1O4y6mXDc5ZI2kCZDYxfZfLMU3Qaz0k2AOM0JzPJzXfvZ4NX4Vx8tcqVXZjm2ILKDnOUBxNgws5wXw6pqgmS4q7snKi3t4OOCJkb05BYo6QMiDwtz6Bfx4vm06RWWhv8xCXuQuK_juH0Ba8s",
-        "qi": "volSZ6zc0QUh0rw0YgkGX1T86tRlKdXOoBKpSE2Xdumfi_TcdhODLmzJsNrR_vyG1xuClJkr7l504e3pF7_HqPQ9IIX7QRgWNhQLKwJMevxzjnCI92G4ZByO_BeEgAD88qIuvLpTWUWndFXSDH45OV-duIAZUkM1Tx6eux6wQBM",
+        "d": "GLF95Bd-eq_YcW6UcGVb4FajAO5RBqTmrA8D25meqHJFdaXopviSMecMzn_WGZBqT2EtQ60Bjc1I5CsUzymzgeZLjdFie7JCO0OWQERvTtUfNicgPEQ6bozR5PMnru6TMljeXRvC39qDTSb45_zFEquWumyaXQMh3S66l1f_cHLwb7rd_-aH3Gt2-5Kx2CdOGLIeyHzSUNn4IEgYWgLzAS1TuxL4tO9Cm9PP5MsIQCF00i12w1pOqy79DIA9G5r7DOSfqa3Brwd61LOBD4_ZSQu5AnZBX7JUpzMsw4IYSJKZEcggpv2TUDrBc-osWUh9ateOLJAGEl5rqM5zjIG-OQ",
+        "n": "sK38tYS06DmMwcl6W72G9JVWyXjNUZk95U9E7d2JiXfLYTv1StWBDU91h6vV5INRVYSKf_mWagEssXRNiUneSGZoNtfAyrQ_d5_TF4FcvbCgjciPkHq2xLf9JI7kGbOJQ0YuIhnOL08noY9ZnuqEvYKWShUYY21U3r-XO2N9sosonPkfke8GkEe2yedZa1Z2jg7muWJ2Zw3UBhk_LzN527ewycB20BYAHEHfxWrWEt9KutDuzJwu_5RhnnTrbB9P1a3aWlLW84nT2iZlomqEyuOPAHZfWhf0GUVMsi1LeuwHsqgWtxQizPhb1nGcWgVln0JzUdvkszahyWjlwcciVw",
+        "p": "tV_21uWgRUnGjf16Q49nETPCYkBAkXBYN6wOvsL-od7GpVhV4YRQ9kI64dppyCm8Uogpk02Zp8qtFXY2DTiVBbKo1LQJsbl4StZ0o0Aw_8OO-z8H5ymOxQBr3VGWt5XGMIvtF55Ie6g5w4wpPiAl_5bOd1an9V0nUM_9MT68QdM",
+        "q": "-V96zk1JQXoimROOFyFfu6h0r1RRBXCYPMUPNQ-YTZU-Mdx1YwTf0ROGRLHl2YyPcuJGXji5-RMAibR701VrttBY76xp02r7utnftqcaF04pSIDhpnuwSv5b300-DThTglg2bvGkeEKxtctjRnT9DRT5jN92hy3pb5JaOjD3xu0",
+        "dq": "4FXpt1_FsBa8uzLhV6OZaMthtTzH6nnhKoIobRaLb_f7zIVEQQDojEDhQDk9yljtz28J2Md1XkGe8UKhRnwI-5ww9eQIC76pmO1ZmQp4qVCSSPxQgyGwdbafVaI6WVA7p_3Ncj8GM33kOuQuefrSjws4eGerTG6cGtfxPXpB3P0",
+        "dp": "K33Wb9NiKhs1vGiSv86MNWjG7M5hbT6WOMtOQdn6OxBza8SR22DiFRruiafZA8FWQigaaBMMjFqiRGozLdpqiZI8v7xoMrC5sqBYGalT1pCrIX4MxBaIAJ9IPirJTD5i5tM2yBoRYW2GZGignyAQXIhp-93QqppqygsFuKBFfjc",
+        "qi": "BQZSGw-Cie-ZylJb5KZgmL7EM_HaN1TWHrHgBISR-MchMmwAInw6X3roFehai9ORW-70XBusEAy8aSaZmKXfFX_AAGufSul0buZSdD-09w0-2_WH3IDWHRL_D1VD7xbxMY4iiHqcSyy7mzArrjrmVElOZ95bKNiPddwhAL_ywPk",
     }
 )
 JWT_AUTH["JWT_PUBLIC_SIGNING_JWK_SET"] = json.dumps(
@@ -203,7 +203,7 @@ JWT_AUTH["JWT_PUBLIC_SIGNING_JWK_SET"] = json.dumps(
                 "kid": "openedx",
                 "kty": "RSA",
                 "e": "AQAB",
-                "n": "qB45SzWy292aXNtod3d_YS3i31o_qFLXerOgR7dYwHZdCrj237wtz7BrA73-A-y-eJpMr_Pi0oeKXv5CaLdEZm0elwqiaWPjopoz-jZIiczAbrHNH9QxDhob7ILFnF6esEcN8F2OEluhmNmvNpEbk1WFh2AhmBdfkjuiIKE8UK3qrOnwplKn6McPk4vDPdVel5utYaYDI33t0sBGn5J4XF0MrpPEFS2MH-eeRgTlAgAM-x3bpZbk6XAtlNvoiX2GWa0hCDIgBq3AfoHyFxmqicXOV-UT13ETOd3gDLEgfBDgXxviZ8m5pkXOq5Rc0XLvsbBHb1hvnLLVrgGWpTjnew",
+                "n": "sK38tYS06DmMwcl6W72G9JVWyXjNUZk95U9E7d2JiXfLYTv1StWBDU91h6vV5INRVYSKf_mWagEssXRNiUneSGZoNtfAyrQ_d5_TF4FcvbCgjciPkHq2xLf9JI7kGbOJQ0YuIhnOL08noY9ZnuqEvYKWShUYY21U3r-XO2N9sosonPkfke8GkEe2yedZa1Z2jg7muWJ2Zw3UBhk_LzN527ewycB20BYAHEHfxWrWEt9KutDuzJwu_5RhnnTrbB9P1a3aWlLW84nT2iZlomqEyuOPAHZfWhf0GUVMsi1LeuwHsqgWtxQizPhb1nGcWgVln0JzUdvkszahyWjlwcciVw",
             }
         ]
     }
@@ -212,7 +212,7 @@ JWT_AUTH["JWT_ISSUERS"] = [
     {
         "ISSUER": "http://www.myopenedx.com/oauth2",
         "AUDIENCE": "openedx",
-        "SECRET_KEY": "JwTlRUcLIWFm9Uz9K9NinH3I"
+        "SECRET_KEY": "tJgTu8nPQWQ8tcjhKi33gP1J"
     }
 ]
 
@@ -249,52 +249,6 @@ OPENEDX_LEARNING = {
         }
     }
 }
-
-# Delivery settings for ERB
-EVENT_ROUTING_BACKEND_BATCHING_ENABLED = True
-EVENT_ROUTING_BACKEND_BATCH_SIZE = 100
-EVENT_ROUTING_BACKEND_BATCH_INTERVAL = 5
-
-# Configuration needed for openedx-event-sink-clickhouse
-EVENT_SINK_CLICKHOUSE_BACKEND_CONFIG = {
-	"url": "http://clickhouse:8123",
-	"username": "ch_cms",
-	"password": "Zyw4LX5MdvEmenXP1hTm2jye",
-	"database": "event_sink",
-	"timeout_secs": 5
-}
-SUPERSET_CONFIG = {
-	"service_url": "http://superset.www.myopenedx.com",
-	"username": "Hlezksj7t2Nz",
-	"password": "AdYCltNt8FqSvEm4XX9S8BFt",
-}
-EVENT_SINK_CLICKHOUSE_PII_MODELS = ['user_profile', 'external_id', 'auth_user']
-
-ASPECTS_INSTRUCTOR_DASHBOARDS = [{'name': 'Course Dashboard', 'slug': 'course-dashboard', 'uuid': 'c0e64194-33d1-4d5a-8c10-4f51530c5ee9', 'allow_translations': True}, {'name': 'At-Risk Learners Dashboard', 'slug': 'learner-groups', 'uuid': '8661d20c-cee6-4245-9fcc-610daea5fd24', 'allow_translations': True}, {'name': 'Individual Learner Dashboard', 'slug': 'individual-learner', 'uuid': 'abae8a25-1ba4-4653-81bd-d3937a162a11', 'allow_translations': True}]
-SUPERSET_DASHBOARD_LOCALES = ['ar', 'da', 'de_DE', 'el', 'en', 'es_419', 'es_ES', 'fr_CA', 'he', 'hi', 'id', 'it_IT', 'pt_BR', 'pt_PT', 'ru', 'th', 'tr_TR', 'uk', 'zh_CN']
-SUPERSET_SHOW_INSTRUCTOR_DASHBOARD_LINK = True
-
-try:
-    not OPEN_EDX_FILTERS_CONFIG
-except NameError:  # OPEN_EDX_FILTERS_CONFIG is not defined
-    OPEN_EDX_FILTERS_CONFIG = {}
-if not OPEN_EDX_FILTERS_CONFIG.get("org.openedx.learning.instructor.dashboard.render.started.v1"):
-    OPEN_EDX_FILTERS_CONFIG["org.openedx.learning.instructor.dashboard.render.started.v1"] = {
-        "fail_silently": False,
-        "pipeline": [],
-    }
-OPEN_EDX_FILTERS_CONFIG["org.openedx.learning.instructor.dashboard.render.started.v1"]["pipeline"].append("platform_plugin_aspects.extensions.filters.AddSupersetTab")
-
-
-
-
-
-
-EVENT_SINK_CLICKHOUSE_COURSE_OVERVIEWS_ENABLED = True
-EVENT_SINK_CLICKHOUSE_TAG_ENABLED = True
-EVENT_SINK_CLICKHOUSE_TAXONOMY_ENABLED = True
-EVENT_SINK_CLICKHOUSE_OBJECT_TAG_ENABLED = True
-EVENT_SINK_CLICKHOUSE_COURSE_ENROLLMENT_ENABLED = True
 
 # Forum configuration
 FORUM_SEARCH_BACKEND = "forum.search.meilisearch.MeilisearchBackend"
@@ -513,12 +467,6 @@ LOGGING["loggers"]["oauth2_provider"] = {
     "level": "DEBUG"
 }
 
-SUPERSET_CONFIG = {
-    "internal_service_url": "http://superset:8088/",
-    "service_url": "http://superset.www.myopenedx.com:8088",
-    "username": "Hlezksj7t2Nz",
-    "password": "AdYCltNt8FqSvEm4XX9S8BFt",
-}
 ENABLE_COMPREHENSIVE_THEMING = True
 COMPREHENSIVE_THEME_DIRS.extend(['/openedx/themes/ednx-saas-themes/edx-platform', '/openedx/themes/ednx-saas-themes/edx-platform/bragi-children'])
 # Dynamic config API settings

@@ -187,15 +187,6 @@ meilisearch.www.myopenedx.com{$default_site_port} {
 }
 
 
-
-
-# Superset
-superset.www.myopenedx.com{$default_site_port} {
-    import proxy "superset:8088"
-}
-
-
-
 apps.www.myopenedx.com{$default_site_port} {
     redir / http://www.myopenedx.com
     request_body {

@@ -5,4 +5,3 @@ setowner 999 /mounts/mongodb
 setowner 999 /mounts/mysql
 setowner 1000 /mounts/redis
 
-setowner 101 /mounts/clickhouse

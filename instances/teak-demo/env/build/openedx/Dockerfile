@@ -106,11 +106,6 @@ RUN --mount=type=cache,target=/openedx/.cache/pip,sharing=shared \
 RUN pip install "openedx-scorm-xblock>=19.0.0,<20.0.0"
 
 RUN --mount=type=cache,target=/openedx/.cache/pip,sharing=shared \
-    pip install "platform-plugin-aspects==v1.1.0"
-
-RUN --mount=type=cache,target=/openedx/.cache/pip,sharing=shared \
-    pip install "edx-event-routing-backends>=9.3.0,<9.4"
-RUN --mount=type=cache,target=/openedx/.cache/pip,sharing=shared \
     pip install "sentry-sdk==2.29.1"
 
 
@@ -351,11 +346,7 @@ RUN rm -r /openedx/staticfiles && \
     mkdir /openedx/staticfiles && \
     npm run build-dev
 
-RUN --mount=type=cache,target=/openedx/.cache/pip,sharing=shared \
-    pip install "platform-plugin-aspects==v1.1.0"
 
-RUN --mount=type=cache,target=/openedx/.cache/pip,sharing=shared \
-    pip install "edx-event-routing-backends>=9.3.0,<9.4"
 
 # Default django settings
 ENV DJANGO_SETTINGS_MODULE=lms.envs.tutor.development
