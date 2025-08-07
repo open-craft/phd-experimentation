@@ -18,7 +18,7 @@ services:
       depends_on: ["mysql"]
 
     lms-job:
-      image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-345ao448
+      image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250807-uvmidr02
       environment:
         SERVICE_VARIANT: lms
         DJANGO_SETTINGS_MODULE: lms.envs.tutor.production
@@ -29,7 +29,7 @@ services:
       depends_on: ["mysql", "mongodb", "meilisearch"]
 
     cms-job:
-      image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250806-345ao448
+      image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250807-uvmidr02
       environment:
         SERVICE_VARIANT: cms
         DJANGO_SETTINGS_MODULE: cms.envs.tutor.production
