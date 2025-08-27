@@ -48,12 +48,12 @@ services:
     volumes:
       - ../../data/mysql:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: "CzRBQSnA"
+      MYSQL_ROOT_PASSWORD: "H6JSSDnx"
 
   meilisearch:
     image: docker.io/getmeili/meilisearch:v1.8.4
     environment:
-      MEILI_MASTER_KEY: "JeobxtQgTX0e6m1RTG8zc5m3"
+      MEILI_MASTER_KEY: "f2J4wjon8YyjEIBbBZxAqRHf"
     volumes:
       - ../../data/meilisearch:/meili_data
     restart: unless-stopped
@@ -83,7 +83,7 @@ services:
   ############# LMS and CMS
 
   lms:
-    image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250827-egs06et8
+    image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250827-55bg9dcx
     environment:
       SERVICE_VARIANT: lms
       DJANGO_SETTINGS_MODULE: lms.envs.tutor.production
@@ -107,7 +107,7 @@ services:
       
 
   cms:
-    image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250827-egs06et8
+    image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250827-55bg9dcx
     environment:
       SERVICE_VARIANT: cms
       DJANGO_SETTINGS_MODULE: cms.envs.tutor.production
