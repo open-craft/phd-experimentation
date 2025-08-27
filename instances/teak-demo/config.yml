@@ -1,5 +1,5 @@
 CMS_HOST: studio.teak-demo.phd.opencraft.hosting
-DOCKER_IMAGE_OPENEDX: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250827-5yl5vxpy
+DOCKER_IMAGE_OPENEDX: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250827-egs06et8
 DOCKER_IMAGE_OPENEDX_DEV: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:teak-demo-dev
 DOCKER_REGISTRY: 466538543953.dkr.ecr.eu-central-1.amazonaws.com
 DRYDOCK_INIT_JOBS: true
