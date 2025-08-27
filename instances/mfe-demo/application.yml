@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mfe-demo.kubernetes.default.svc
+  namespace: argocd
+spec:
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: mfe-demo
+  project: opencraft
+  source:
+    path: instances/mfe-demo/env
+    repoURL: https://github.com/open-craft/phd-experimentation.git
+    targetRevision: main
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+    - PruneLast=true
