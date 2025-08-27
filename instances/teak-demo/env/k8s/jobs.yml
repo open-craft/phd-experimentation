@@ -11,7 +11,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: lms
-        image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250807-uvmidr02
+        image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250827-5yl5vxpy
         env:
         - name: SERVICE_VARIANT
           value: lms
@@ -47,7 +47,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: cms
-        image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250807-uvmidr02
+        image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250827-5yl5vxpy
         env:
         - name: SERVICE_VARIANT
           value: cms
