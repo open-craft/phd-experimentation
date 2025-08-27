@@ -1,0 +1,38 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-debug
+  namespace: mfe-demo
+  annotations:
+    argocd.argoproj.io/sync-wave: "200"
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-by-cookie: ednx_enable_debug
+    cert-manager.io/issuer: letsencrypt
+spec:
+  rules:
+  - host: mfe-demo.phd.opencraft.hosting
+    http:
+      paths:
+      - backend:
+          service:
+            name: lms-debug
+            port:
+              number: 8000
+        path: /
+        pathType: Prefix
+  - host: studio.mfe-demo.phd.opencraft.hosting
+    http:
+      paths:
+      - backend:
+          service:
+            name: cms-debug
+            port:
+              number: 8000
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - mfe-demo.phd.opencraft.hosting
+    - studio.mfe-demo.phd.opencraft.hosting
+    secretName: mfe-demo-tls

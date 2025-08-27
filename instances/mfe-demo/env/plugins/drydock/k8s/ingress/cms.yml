@@ -1,0 +1,39 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-cms
+  namespace: mfe-demo
+  annotations:
+    cert-manager.io/issuer: letsencrypt
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: studio.mfe-demo.phd.opencraft.hosting
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/course-authoring"
+        backend:
+          service:
+            name: caddy
+            port:
+              number: 80
+      - pathType: Prefix
+        path: "/authoring"
+        backend:
+          service:
+            name: caddy
+            port:
+              number: 80
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: caddy
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - studio.mfe-demo.phd.opencraft.hosting
+    secretName: cms-host-tls

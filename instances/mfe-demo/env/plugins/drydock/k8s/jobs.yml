@@ -1,0 +1,570 @@
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded,BeforeHookCreation
+    argocd.argoproj.io/sync-wave: 1
+  labels:
+    app.kubernetes.io/component: drydock-job
+    drydock.io/runner-service: drydock-lms-job-0
+    drydock.io/target-service: drydock-lms-job-0
+  name: drydock-lms-job-0
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - args:
+        - sh
+        - -e
+        - -c
+        - "# The initialization job contains various re-install operations needed\
+          \ to be done\n# on mounted directories (edx-platform, /mnt/*xblock, /mnt/<edx-ora,\
+          \ search, enterprise>)\n# 1. /mnt/*\n# Whenever xblocks or other installable\
+          \ packages are mounted, during the image build, they are copied over to\
+          \ container\n# and installed. This results in egg_info generation for the\
+          \ mounted directories. However, the egg_info is not carried\n# over to host.\
+          \ When the containers are launched, the host directories without egg_info\
+          \ are mounted on runtime\n# and disappear from pip list.\n#\n# 2. edx-platform\n\
+          # When a new local copy of edx-platform is bind-mounted, certain build\n\
+          # artifacts from the openedx image's edx-platform directory are lost.\n\
+          # We regenerate them here.\n\n\nfor mounted_dir in /mnt/*; do\n    if [\
+          \ -f $mounted_dir/setup.py ] && ! ls $mounted_dir/*.egg-info >/dev/null\
+          \ 2>&1 ; then\n        echo \"Unable to locate egg-info in $mounted_dir\"\
+          \n        pip install -e $mounted_dir\n    fi\ndone\n\nif [ -f /openedx/edx-platform/bindmount-canary\
+          \ ] ; then\n\t# If this file exists, then edx-platform has not been bind-mounted,\n\
+          \t# so no build artifacts need to be regenerated.\n\techo \"Using edx-platform\
+          \ from image (not bind-mount).\"\n\techo \"No extra setup is required.\"\
+          \n\texit\nfi\n\necho \"Performing additional setup for bind-mounted edx-platform.\"\
+          \nset -x # Echo out executed lines\n\n# Regenerate Open_edX.egg-info\npip\
+          \ install -e .\n\n# Regenerate node_modules\nnpm clean-install\n\n# Regenerate\
+          \ static assets.\nnpm run build-dev\n\nset -x\necho \"Done setting up bind-mounted\
+          \ edx-platform.\""
+        env:
+        - name: SERVICE_VARIANT
+          value: lms
+        - name: DJANGO_SETTINGS_MODULE
+          value: lms.envs.tutor.production
+        image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250827-egs06et8
+        name: lms
+        volumeMounts:
+        - mountPath: /openedx/edx-platform/lms/envs/tutor/
+          name: settings-lms
+        - mountPath: /openedx/edx-platform/cms/envs/tutor/
+          name: settings-cms
+        - mountPath: /openedx/config
+          name: config
+      restartPolicy: Never
+      volumes:
+      - configMap:
+          name: openedx-settings-lms
+        name: settings-lms
+      - configMap:
+          name: openedx-settings-cms
+        name: settings-cms
+      - configMap:
+          name: openedx-config
+        name: config
+  ttlSecondsAfterFinished: 3600
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded,BeforeHookCreation
+    argocd.argoproj.io/sync-wave: 3
+  labels:
+    app.kubernetes.io/component: drydock-job
+    drydock.io/runner-service: drydock-mongodb-job-1
+    drydock.io/target-service: drydock-mongodb-job-1
+  name: drydock-mongodb-job-1
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - args:
+        - sh
+        - -e
+        - -c
+        - "echo \"Initialising MongoDB...\"\nmongosh --host mongodb --port 27017 \
+          \ admin <<EOF\n  \n  \n  exit\nEOF"
+        image: docker.io/mongo:7.0.7
+        name: mongodb
+      restartPolicy: Never
+  ttlSecondsAfterFinished: 3600
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded,BeforeHookCreation
+    argocd.argoproj.io/sync-wave: 5
+  labels:
+    app.kubernetes.io/component: drydock-job
+    drydock.io/runner-service: drydock-mysql-job-2
+    drydock.io/target-service: drydock-mysql-job-2
+  name: drydock-mysql-job-2
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - args:
+        - sh
+        - -e
+        - -c
+        - "echo \"Initialising MySQL...\"\nmysql_connection_max_attempts=10\nmysql_connection_attempt=0\n\
+          until mysql -u root --password=\"CzRBQSnA\" --host \"mysql\" --port 3306\
+          \ -e 'exit'\ndo\n    mysql_connection_attempt=$(expr $mysql_connection_attempt\
+          \ + 1)\n    echo \"    [$mysql_connection_attempt/$mysql_connection_max_attempts]\
+          \ Waiting for MySQL service (this may take a while)...\"\n    if [ $mysql_connection_attempt\
+          \ -eq $mysql_connection_max_attempts ]\n    then\n      echo \"MySQL initialisation\
+          \ error\" 1>&2\n      exit 1\n    fi\n    sleep 10\ndone\necho \"MySQL is\
+          \ up and running\"\n\n# edx-platform database\nmysql -u root --password=\"\
+          CzRBQSnA\" --host \"mysql\" --port 3306 -e \"CREATE DATABASE IF NOT EXISTS\
+          \ openedx;\"\nmysql -u root --password=\"CzRBQSnA\" --host \"mysql\" --port\
+          \ 3306 -e \"CREATE USER IF NOT EXISTS 'openedx';\"\nmysql -u root --password=\"\
+          CzRBQSnA\" --host \"mysql\" --port 3306 -e \"ALTER USER 'openedx'@'%' IDENTIFIED\
+          \ BY 'PxE7dq1l';\"\nmysql -u root --password=\"CzRBQSnA\" --host \"mysql\"\
+          \ --port 3306 -e \"GRANT ALL ON openedx.* TO 'openedx'@'%';\""
+        image: docker.io/mysql:8.4.0
+        name: mysql
+      restartPolicy: Never
+  ttlSecondsAfterFinished: 3600
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded,BeforeHookCreation
+    argocd.argoproj.io/sync-wave: 7
+  labels:
+    app.kubernetes.io/component: drydock-job
+    drydock.io/runner-service: drydock-lms-job-3
+    drydock.io/target-service: drydock-lms-job-3
+  name: drydock-lms-job-3
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - args:
+        - sh
+        - -e
+        - -c
+        - "# Get or create Meilisearch API key\npython -c \"\nimport meilisearch\n\
+          client = meilisearch.Client('http://meilisearch:7700', 'JeobxtQgTX0e6m1RTG8zc5m3')\n\
+          try:\n    client.get_key('15458c31-e67b-4e25-b43e-108b9108da9a')\n    print('Key\
+          \ already exists')\nexcept meilisearch.errors.MeilisearchApiError:\n   \
+          \ print('Key does not exist: creating...')\n    client.create_key({\n  \
+          \      'name': 'Open edX backend API key',\n        'uid': '15458c31-e67b-4e25-b43e-108b9108da9a',\n\
+          \        'actions': ['*'],\n        'indexes': ['tutor_*'],\n        'expiresAt':\
+          \ None,\n        'description': 'Use it for backend API calls -- Created\
+          \ by Tutor',\n    })\n\""
+        env:
+        - name: SERVICE_VARIANT
+          value: lms
+        - name: DJANGO_SETTINGS_MODULE
+          value: lms.envs.tutor.production
+        image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250827-egs06et8
+        name: lms
+        volumeMounts:
+        - mountPath: /openedx/edx-platform/lms/envs/tutor/
+          name: settings-lms
+        - mountPath: /openedx/edx-platform/cms/envs/tutor/
+          name: settings-cms
+        - mountPath: /openedx/config
+          name: config
+      restartPolicy: Never
+      volumes:
+      - configMap:
+          name: openedx-settings-lms
+        name: settings-lms
+      - configMap:
+          name: openedx-settings-cms
+        name: settings-cms
+      - configMap:
+          name: openedx-config
+        name: config
+  ttlSecondsAfterFinished: 3600
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded,BeforeHookCreation
+    argocd.argoproj.io/sync-wave: 9
+  labels:
+    app.kubernetes.io/component: drydock-job
+    drydock.io/runner-service: drydock-lms-job-4
+    drydock.io/target-service: drydock-lms-job-4
+  name: drydock-lms-job-4
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - args:
+        - sh
+        - -e
+        - -c
+        - "dockerize -wait tcp://mysql:3306 -timeout 20s\ndockerize -wait tcp://mongodb:27017\
+          \ -timeout 20s\n\necho \"Loading settings $DJANGO_SETTINGS_MODULE\"\n\n\
+          ./manage.py lms migrate\n\n# Create meilisearch indexes\n./manage.py lms\
+          \ shell -c \"import search.meilisearch; search.meilisearch.create_indexes()\"\
+          \n\n# Create oauth2 apps for CMS SSO\n# https://github.com/openedx/edx-platform/blob/master/docs/guides/studio_oauth.rst\n\
+          ./manage.py lms manage_user cms cms@openedx --unusable-password\n./manage.py\
+          \ lms create_dot_application \\\n  --grant-type authorization-code \\\n\
+          \  --redirect-uris \"https://studio.mfe-demo.phd.opencraft.hosting/complete/edx-oauth2/\"\
+          \ \\\n  --client-id cms-sso \\\n  --client-secret Co2RRb61OfJ7V6Yr01QQZKkw\
+          \ \\\n  --scopes user_id \\\n  --skip-authorization \\\n  --update cms-sso\
+          \ cms\n./manage.py lms create_dot_application \\\n  --grant-type authorization-code\
+          \ \\\n  --redirect-uris \"http://studio.mfe-demo.phd.opencraft.hosting:8001/complete/edx-oauth2/\"\
+          \ \\\n  --client-id cms-sso-dev \\\n  --client-secret Co2RRb61OfJ7V6Yr01QQZKkw\
+          \ \\\n  --scopes user_id \\\n  --skip-authorization \\\n  --update cms-sso-dev\
+          \ cms\n\n\n# Fix incorrect uploaded file path\nif [ -d /openedx/data/uploads/\
+          \ ]; then\n  if [ -n \"$(ls -A /openedx/data/uploads/)\" ]; then\n    echo\
+          \ \"Migrating LMS uploaded files to shared directory\"\n    mv /openedx/data/uploads/*\
+          \ /openedx/media/\n    rm -rf /openedx/data/uploads/\n  fi\nfi\n\n# Create\
+          \ waffle switches to enable some features, if they have not been explicitly\
+          \ defined before\n# Completion tracking: add green ticks to every completed\
+          \ unit\n(./manage.py lms waffle_switch --list | grep completion.enable_completion_tracking)\
+          \ || ./manage.py lms waffle_switch --create completion.enable_completion_tracking\
+          \ on"
+        env:
+        - name: SERVICE_VARIANT
+          value: lms
+        - name: DJANGO_SETTINGS_MODULE
+          value: lms.envs.tutor.production
+        image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250827-egs06et8
+        name: lms
+        volumeMounts:
+        - mountPath: /openedx/edx-platform/lms/envs/tutor/
+          name: settings-lms
+        - mountPath: /openedx/edx-platform/cms/envs/tutor/
+          name: settings-cms
+        - mountPath: /openedx/config
+          name: config
+      restartPolicy: Never
+      volumes:
+      - configMap:
+          name: openedx-settings-lms
+        name: settings-lms
+      - configMap:
+          name: openedx-settings-cms
+        name: settings-cms
+      - configMap:
+          name: openedx-config
+        name: config
+  ttlSecondsAfterFinished: 3600
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded,BeforeHookCreation
+    argocd.argoproj.io/sync-wave: 11
+  labels:
+    app.kubernetes.io/component: drydock-job
+    drydock.io/runner-service: drydock-cms-job-5
+    drydock.io/target-service: drydock-cms-job-5
+  name: drydock-cms-job-5
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - args:
+        - sh
+        - -e
+        - -c
+        - "dockerize -wait tcp://mysql:3306 -timeout 20s\n\necho \"Loading settings\
+          \ $DJANGO_SETTINGS_MODULE\"\n\n./manage.py cms migrate\n\n# Fix incorrect\
+          \ uploaded file path\nif [ -d /openedx/data/uploads/ ]; then\n  if [ -n\
+          \ \"$(ls -A /openedx/data/uploads/)\" ]; then\n    echo \"Migrating CMS\
+          \ uploaded files to shared directory\"\n    mv /openedx/data/uploads/* /openedx/media/\n\
+          \    rm -rf /openedx/data/uploads/\n  fi\nfi\n\n# Create the index for studio\
+          \ and courseware content. Because we specify --init,\n# this will not populate\
+          \ the index (potentially slow) nor replace any existing\n# index (resulting\
+          \ in broken features until it is complete). If either of those\n# are necessary,\
+          \ it will print instructions on what command to run to do so.\n./manage.py\
+          \ cms reindex_studio --experimental --init\n# Create the courseware content\
+          \ index\n./manage.py cms reindex_course --active"
+        env:
+        - name: SERVICE_VARIANT
+          value: cms
+        - name: DJANGO_SETTINGS_MODULE
+          value: cms.envs.tutor.production
+        image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250827-egs06et8
+        name: cms
+        volumeMounts:
+        - mountPath: /openedx/edx-platform/lms/envs/tutor/
+          name: settings-lms
+        - mountPath: /openedx/edx-platform/cms/envs/tutor/
+          name: settings-cms
+        - mountPath: /openedx/config
+          name: config
+      restartPolicy: Never
+      volumes:
+      - configMap:
+          name: openedx-settings-lms
+        name: settings-lms
+      - configMap:
+          name: openedx-settings-cms
+        name: settings-cms
+      - configMap:
+          name: openedx-config
+        name: config
+  ttlSecondsAfterFinished: 3600
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded,BeforeHookCreation
+    argocd.argoproj.io/sync-wave: 13
+  labels:
+    app.kubernetes.io/component: drydock-job
+    drydock.io/runner-service: drydock-lms-job-6
+    drydock.io/target-service: drydock-lms-job-6
+  name: drydock-lms-job-6
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - args:
+        - sh
+        - -e
+        - -c
+        - "\n(./manage.py lms waffle_flag --list | grep discussions.enable_forum_v2)\
+          \ || ./manage.py lms waffle_flag --create --everyone discussions.enable_forum_v2\n\
+          \n# Switch to MySQL backend, unless a global waffle flag was already created.\n\
+          # This allows user to stick to the MongoDb backend by creating a flag with:\n\
+          #\n#     ./manage.py lms waffle_flag --create --deactivate forum_v2.enable_mysql_backend\n\
+          #\n./manage.py lms shell -c \"\nfrom waffle.models import Flag\nflag, created\
+          \ = Flag.objects.get_or_create(name='forum_v2.enable_mysql_backend')\nif\
+          \ created:\n    print('Configuring MySQL backend for forum data storage')\n\
+          \    flag.everyone = True\n    flag.save()\nelif not flag.everyone:\n  \
+          \  print('⚠️ You should migrate your forum data to MySQL: https://github.com/overhangio/tutor-forum/#installation')\n\
+          else:\n    print('MySQL backend already configured for forum data storage')\"\
+          \n\n# Initialize indices\n./manage.py lms initialize_forum_indices\n\n#\
+          \ Create Mongodb indexes\n./manage.py lms forum_create_mongodb_indexes"
+        env:
+        - name: SERVICE_VARIANT
+          value: lms
+        - name: DJANGO_SETTINGS_MODULE
+          value: lms.envs.tutor.production
+        image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250827-egs06et8
+        name: lms
+        volumeMounts:
+        - mountPath: /openedx/edx-platform/lms/envs/tutor/
+          name: settings-lms
+        - mountPath: /openedx/edx-platform/cms/envs/tutor/
+          name: settings-cms
+        - mountPath: /openedx/config
+          name: config
+      restartPolicy: Never
+      volumes:
+      - configMap:
+          name: openedx-settings-lms
+        name: settings-lms
+      - configMap:
+          name: openedx-settings-cms
+        name: settings-cms
+      - configMap:
+          name: openedx-config
+        name: config
+  ttlSecondsAfterFinished: 3600
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded,BeforeHookCreation
+    argocd.argoproj.io/sync-wave: 15
+  labels:
+    app.kubernetes.io/component: drydock-job
+    drydock.io/runner-service: drydock-lms-job-7
+    drydock.io/target-service: drydock-lms-job-7
+  name: drydock-lms-job-7
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - args:
+        - sh
+        - -e
+        - -c
+        - '# MFE-specific tasks
+
+          ./manage.py lms waffle_flag --list > /tmp/lms_waffle_flags.txt
+
+
+
+          ./manage.py lms populate_retirement_states
+
+
+
+
+
+          grep learner_home_mfe.enabled /tmp/lms_waffle_flags.txt || ./manage.py lms
+          waffle_flag --create --everyone learner_home_mfe.enabled
+
+
+
+
+          grep course_home.course_home_mfe_progress_tab /tmp/lms_waffle_flags.txt
+          || ./manage.py lms waffle_flag --create --everyone course_home.course_home_mfe_progress_tab
+
+          grep courseware.enable_navigation_sidebar /tmp/lms_waffle_flags.txt || ./manage.py
+          lms waffle_flag --create --everyone courseware.enable_navigation_sidebar
+
+          grep courseware.always_open_auxiliary_sidebar /tmp/lms_waffle_flags.txt
+          || ./manage.py lms waffle_flag --create --deactivate courseware.always_open_auxiliary_sidebar
+
+
+
+
+          grep contentstore.new_studio_mfe.use_new_advanced_settings_page /tmp/lms_waffle_flags.txt
+          || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_advanced_settings_page
+
+          grep contentstore.new_studio_mfe.use_new_certificates_page /tmp/lms_waffle_flags.txt
+          || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_certificates_page
+
+          grep contentstore.new_studio_mfe.use_new_course_outline_page /tmp/lms_waffle_flags.txt
+          || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_course_outline_page
+
+          grep contentstore.new_studio_mfe.use_new_course_team_page /tmp/lms_waffle_flags.txt
+          || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_course_team_page
+
+          grep contentstore.new_studio_mfe.use_new_custom_pages /tmp/lms_waffle_flags.txt
+          || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_custom_pages
+
+          grep contentstore.new_studio_mfe.use_new_export_page /tmp/lms_waffle_flags.txt
+          || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_export_page
+
+          grep contentstore.new_studio_mfe.use_new_files_uploads_page /tmp/lms_waffle_flags.txt
+          || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_files_uploads_page
+
+          grep contentstore.new_studio_mfe.use_new_grading_page /tmp/lms_waffle_flags.txt
+          || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_grading_page
+
+          grep contentstore.new_studio_mfe.use_new_group_configurations_page /tmp/lms_waffle_flags.txt
+          || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_group_configurations_page
+
+          grep contentstore.new_studio_mfe.use_new_import_page /tmp/lms_waffle_flags.txt
+          || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_import_page
+
+          grep contentstore.new_studio_mfe.use_new_schedule_details_page /tmp/lms_waffle_flags.txt
+          || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_schedule_details_page
+
+          grep contentstore.new_studio_mfe.use_new_textbooks_page /tmp/lms_waffle_flags.txt
+          || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_textbooks_page
+
+          grep contentstore.new_studio_mfe.use_new_unit_page /tmp/lms_waffle_flags.txt
+          || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_unit_page
+
+          grep contentstore.new_studio_mfe.use_new_updates_page /tmp/lms_waffle_flags.txt
+          || ./manage.py lms waffle_flag --create --everyone contentstore.new_studio_mfe.use_new_updates_page
+
+          grep discussions.pages_and_resources_mfe /tmp/lms_waffle_flags.txt || ./manage.py
+          lms waffle_flag --create --everyone discussions.pages_and_resources_mfe
+
+          grep new_core_editors.use_new_problem_editor /tmp/lms_waffle_flags.txt ||
+          ./manage.py lms waffle_flag --create --everyone new_core_editors.use_new_problem_editor
+
+          grep new_core_editors.use_new_text_editor /tmp/lms_waffle_flags.txt || ./manage.py
+          lms waffle_flag --create --everyone new_core_editors.use_new_text_editor
+
+          grep new_core_editors.use_new_video_editor /tmp/lms_waffle_flags.txt ||
+          ./manage.py lms waffle_flag --create --everyone new_core_editors.use_new_video_editor
+
+          grep new_studio_mfe.use_new_home_page /tmp/lms_waffle_flags.txt || ./manage.py
+          lms waffle_flag --create --everyone new_studio_mfe.use_new_home_page
+
+          grep new_studio_mfe.use_tagging_taxonomy_list_page /tmp/lms_waffle_flags.txt
+          || ./manage.py lms waffle_flag --create --everyone new_studio_mfe.use_tagging_taxonomy_list_page
+
+
+
+
+          grep discussions.enable_discussions_mfe  /tmp/lms_waffle_flags.txt || ./manage.py
+          lms waffle_flag --create --everyone discussions.enable_discussions_mfe
+
+          grep discussions.enable_learners_tab_in_discussions_mfe  /tmp/lms_waffle_flags.txt
+          || ./manage.py lms waffle_flag --create --everyone discussions.enable_learners_tab_in_discussions_mfe
+
+          grep discussions.enable_moderation_reason_codes  /tmp/lms_waffle_flags.txt
+          || ./manage.py lms waffle_flag --create --everyone discussions.enable_moderation_reason_codes
+
+          grep discussions.enable_reported_content_email_notifications  /tmp/lms_waffle_flags.txt
+          || ./manage.py lms waffle_flag --create --everyone discussions.enable_reported_content_email_notifications
+
+          grep discussions.enable_learners_stats  /tmp/lms_waffle_flags.txt || ./manage.py
+          lms waffle_flag --create --everyone discussions.enable_learners_stats
+
+          grep discussions.enable_new_structure_discussions  /tmp/lms_waffle_flags.txt
+          || ./manage.py lms waffle_flag --create --everyone discussions.enable_new_structure_discussions
+
+
+
+
+          grep openresponseassessment.enhanced_staff_grader /tmp/lms_waffle_flags.txt
+          || ./manage.py lms waffle_flag --create --everyone openresponseassessment.enhanced_staff_grader
+
+          '
+        env:
+        - name: SERVICE_VARIANT
+          value: lms
+        - name: DJANGO_SETTINGS_MODULE
+          value: lms.envs.tutor.production
+        image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250827-egs06et8
+        name: lms
+        volumeMounts:
+        - mountPath: /openedx/edx-platform/lms/envs/tutor/
+          name: settings-lms
+        - mountPath: /openedx/edx-platform/cms/envs/tutor/
+          name: settings-cms
+        - mountPath: /openedx/config
+          name: config
+      restartPolicy: Never
+      volumes:
+      - configMap:
+          name: openedx-settings-lms
+        name: settings-lms
+      - configMap:
+          name: openedx-settings-cms
+        name: settings-cms
+      - configMap:
+          name: openedx-config
+        name: config
+  ttlSecondsAfterFinished: 3600
+
+---
+

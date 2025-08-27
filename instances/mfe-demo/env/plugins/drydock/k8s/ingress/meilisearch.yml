@@ -1,0 +1,25 @@
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: meilisearch
+  namespace: mfe-demo
+  annotations:
+    cert-manager.io/issuer: letsencrypt
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: meilisearch.mfe-demo.phd.opencraft.hosting
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: caddy
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - meilisearch.mfe-demo.phd.opencraft.hosting
+    secretName: meilisearch-host-tls

@@ -1,0 +1,141 @@
+services:
+
+  # Set bind-mounted folder ownership
+  permissions:
+    image: 466538543953.dkr.ecr.eu-central-1.amazonaws.comoverhangio/openedx-permissions:v20.0.0
+    restart: on-failure
+    entrypoint: []
+    command: ["sh", "/usr/local/bin/setowners.sh"]
+    environment:
+      OPENEDX_USER_ID: "1000"
+    volumes:
+      # Command script
+      - ../apps/permissions/setowners.sh:/usr/local/bin/setowners.sh:ro
+      # Bind-mounted volumes to set ownership
+      - ../../data/lms:/mounts/lms
+      - ../../data/cms:/mounts/cms
+      - ../../data/openedx-media:/mounts/openedx
+      - ../../data/openedx-media-private:/mounts/openedx-private
+      - ../../data/mongodb:/mounts/mongodb
+      - ../../data/mysql:/mounts/mysql
+      - ../../data/meilisearch:/mounts/meilisearch
+      - ../../data/redis:/mounts/redis
+      
+
+  ############# External services
+
+  mongodb:
+    image: docker.io/mongo:7.0.7
+    # Use WiredTiger in all environments, just like at edx.org
+    command: mongod --storageEngine wiredTiger
+    restart: unless-stopped
+    user: "999:999"
+    volumes:
+      - ../../data/mongodb:/data/db
+    depends_on:
+      - permissions
+
+  mysql:
+    image: docker.io/mysql:8.4.0
+    command: >
+      mysqld
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --binlog-expire-logs-seconds=259200
+      --mysql-native-password=ON
+    restart: unless-stopped
+    user: "999:999"
+    volumes:
+      - ../../data/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "CzRBQSnA"
+
+  meilisearch:
+    image: docker.io/getmeili/meilisearch:v1.8.4
+    environment:
+      MEILI_MASTER_KEY: "JeobxtQgTX0e6m1RTG8zc5m3"
+    volumes:
+      - ../../data/meilisearch:/meili_data
+    restart: unless-stopped
+    user: "1000:1000"
+    depends_on:
+      - permissions
+
+  redis:
+    image: docker.io/redis:7.2.4
+    working_dir: /openedx/redis/data
+    user: "1000:1000"
+    volumes:
+      - ../apps/redis/redis.conf:/openedx/redis/config/redis.conf:ro
+      - ../../data/redis:/openedx/redis/data
+    command: redis-server /openedx/redis/config/redis.conf
+    restart: unless-stopped
+    depends_on:
+      - permissions
+
+  smtp:
+    image: docker.io/devture/exim-relay:4.96-r1-0
+    restart: unless-stopped
+    user: "100:101"
+    environment:
+      HOSTNAME: "mfe-demo.phd.opencraft.hosting"
+
+  ############# LMS and CMS
+
+  lms:
+    image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250827-egs06et8
+    environment:
+      SERVICE_VARIANT: lms
+      DJANGO_SETTINGS_MODULE: lms.envs.tutor.production
+      UWSGI_WORKERS: 2
+    restart: unless-stopped
+    volumes:
+      - ../apps/openedx/settings/lms:/openedx/edx-platform/lms/envs/tutor:ro
+      - ../apps/openedx/settings/cms:/openedx/edx-platform/cms/envs/tutor:ro
+      - ../apps/openedx/config:/openedx/config:ro
+      - ../apps/openedx/uwsgi.ini:/openedx/uwsgi.ini:ro
+      - ../../data/lms:/openedx/data
+      - ../../data/openedx-media:/openedx/media
+      - ../../data/openedx-media-private:/openedx/media-private
+    depends_on:
+      - permissions
+      - mysql
+      - meilisearch
+      - mongodb
+      - redis
+      - smtp
+      
+
+  cms:
+    image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250827-egs06et8
+    environment:
+      SERVICE_VARIANT: cms
+      DJANGO_SETTINGS_MODULE: cms.envs.tutor.production
+      UWSGI_WORKERS: 2
+    restart: unless-stopped
+    volumes:
+      - ../apps/openedx/settings/lms:/openedx/edx-platform/lms/envs/tutor:ro
+      - ../apps/openedx/settings/cms:/openedx/edx-platform/cms/envs/tutor:ro
+      - ../apps/openedx/config:/openedx/config:ro
+      - ../apps/openedx/uwsgi.ini:/openedx/uwsgi.ini:ro
+      - ../../data/cms:/openedx/data
+      - ../../data/openedx-media:/openedx/media
+      - ../../data/openedx-media-private:/openedx/media-private
+    depends_on:
+      - permissions
+      - lms
+      - mysql
+      - meilisearch
+      - mongodb
+      - redis
+      - smtp
+      
+
+  # MFE
+  mfe:
+      image: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250827-uqvtxt4w
+      restart: unless-stopped
+      volumes:
+          - ../plugins/mfe/apps/mfe/Caddyfile:/etc/caddy/Caddyfile:ro
+      depends_on:
+          - lms
