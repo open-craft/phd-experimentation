@@ -16,7 +16,7 @@ GROVE_NEW_MFES:
     version: kaustav/test_phd_sandbox
 K8S_NAMESPACE: mfe-demo
 LMS_HOST: mfe-demo.phd.opencraft.hosting
-MFE_DOCKER_IMAGE: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250827-uqvtxt4w
+MFE_DOCKER_IMAGE: 466538543953.dkr.ecr.eu-central-1.amazonaws.com/phd-experiment-6888bd00add5eb8ac6bb3199:v20.0.0-20250828-08n2srgn
 OPENEDX_EXTRA_PIP_REQUIREMENTS:
 - git+https://github.com/eduNEXT/eox-tenant@v14.0.0
 - cssselect==1.2.0
